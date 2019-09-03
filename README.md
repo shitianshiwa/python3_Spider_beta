@@ -1,5 +1,5 @@
-#python3.7.3
-##需要安装的库
+# python3.7.3
+## 需要安装的库
 *pip install BeautifulSoup4
 # 参考
 * [爬虫入门教程 —— 1](https://blog.csdn.net/redpintings/article/details/79916679)
