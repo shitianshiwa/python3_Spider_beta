@@ -1,6 +1,7 @@
 #-*-coding:utf-8 -*-
 '''
-后台运行 nohup python3 /root/test/AIChannelB站官方数据爬虫(beta)0.6.py
+(beta)0.61
+后台运行 nohup python3 /root/test/AIChannel官方数据爬虫.py
 显示所有进程 ps aux
 杀死进程 PID（数字）
 Linux系统 nohup python3 /root/test/AIChannel官方0.6.py(文件路径每个人都不一样,用filezilla把文件传上linux服务器)
@@ -88,7 +89,7 @@ def get_data():
         temp.append(valuex)
         final.append(temp)
         write_data(final, 'AIChannel.csv')
-        timeoutx = 600+random.choice(range(1, 2))
+        timeoutx = 600+random.choice(range(1, 10))
         print("延迟："+str(timeoutx)+"s")
         timer = threading.Timer(timeoutx, get_data)
         timer.start()
