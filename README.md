@@ -11,4 +11,7 @@
 * [python 网络爬虫入门（一）———第一个python爬虫实例](https://blog.csdn.net/Bo_wen_/article/details/50868339)
 * [python常用命令](https://blog.csdn.net/weixin_39875181/article/details/78695264)
 * [Python对于CSV文件的读取与写入](https://www.cnblogs.com/unnameable/p/7366437.html )
+# 备忘录（这个项目还没在这个系统上试过且所需的依赖库不一定能装到）
+* python3最后支持的windows xp系统的版本是3.4.4
+* https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi
 
