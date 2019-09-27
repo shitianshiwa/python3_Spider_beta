@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#(beta)0.2
+#(beta)0.21
 import threading
 import requests
 import csv
@@ -11,7 +11,7 @@ import urllib.request
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-logname='bilibili_log.txt'
+logname='bilibili_log2.txt'
 timer=None
 
 def get_content(url , data = None):
@@ -102,20 +102,20 @@ def start():
     global timer
     timer.cancel()
     #print("2233")
-    timeout=3600
+    timeout=86400
     print("延迟："+str(timeout)+"s")
 
     html = get_content('https://www.bilibili.com/bangumi/media/md139632/')#邻家索菲
-    result = get_data(html,'邻家索菲')
-    write_data(result,'B站邻家索菲数据.csv')
+    result = get_data(html,'邻家索菲2')
+    write_data(result,'B站邻家索菲数据2.csv')
 
     html = get_content('https://www.bilibili.com/bangumi/media/md28221404/')#街角魔族
-    result = get_data(html,'街角魔族') 
-    write_data(result, 'B站街角魔族数据.csv')
+    result = get_data(html,'街角魔族2') 
+    write_data(result, 'B站街角魔族数据2.csv')
 
     html = get_content('https://www.bilibili.com/bangumi/media/md4316442/')#天使降临到我身边
-    result = get_data(html,'天使降临到我身边') 
-    write_data(result, '天使降临到我身边.csv')
+    result = get_data(html,'天使降临到我身边2') 
+    write_data(result, '天使降临到我身边2.csv')
     
     timer = threading.Timer(timeout, start)#一小时=3600s
     timer.start()
