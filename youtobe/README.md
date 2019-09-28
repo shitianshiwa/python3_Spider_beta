@@ -31,8 +31,8 @@
 
 6. 测试
 
-*phantomjs
-*phantomjs> phantom.version
+* phantomjs
+* phantomjs> phantom.version
 
 来源：https://blog.csdn.net/yin__ren/article/details/79410393 
 
