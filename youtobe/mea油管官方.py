@@ -27,6 +27,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 browser=None
 timer=None
+b=0
 
 #https://www.youtube.com/channel/UCWCc8tO-uUl_7SJXIKJACMw
 #url ='https://www.youtube.com/channel/UCWCc8tO-uUl_7SJXIKJACMw'
@@ -70,6 +71,8 @@ Python 3.x 中，iteritems() 和 viewitems()这两个方法都已经废除了，
 '''
 
 def get_data(url,logname):
+    global b
+    global timer
     global browser
     try:
         final=[]
@@ -96,27 +99,37 @@ def get_data(url,logname):
         return final
     
     except Exception as err:
+        b+=1
+        print(str(b))
+        if(timer!=None):
+            timer.cancel()
         if(browser!=None):
             browser.service.process.send_signal(signal.SIGTERM)
             browser.quit()
+        if(b>=3):
+            exit()
         with open(logname+'_log.txt', 'a', encoding='utf-8') as f:
             f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
-        exit()
+        timer = threading.Timer(10, start)
+        timer.start()
     finally:
         print(datetime.now())
         
 def write_data(data, name):
+    global b
     file_name = name
     with open(file_name, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
             f_csv = csv.writer(f)
             f_csv.writerows(data)
+    b=0
 
 def start():
     global timer
-    timer.cancel()
+    if(timer!=None):
+            timer.cancel()
     #print("2233")
-    timeout=3600
+    timeout=10
     print("延迟："+str(timeout)+"s")
 
     result=get_data('https://www.youtube.com/channel/UCWCc8tO-uUl_7SJXIKJACMw','youtobe_mea')
