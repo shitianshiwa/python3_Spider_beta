@@ -1,7 +1,7 @@
 #-*-coding:utf-8 -*-
 #(beta)0.1
 '''
-后台运行 nohup python3 /root/test/mea油管官方.py
+后台运行 nohup python3 /root/test/AIChancel油管官方.py
 显示所有进程 ps aux
 杀死进程 PID（数字）
 Linux系统 nohup python3 /root/test/AIChannel官方0.6.py(文件路径每个人都不一样,用filezilla把文件传上linux服务器)
@@ -133,8 +133,8 @@ def start():
     timeout=3600
     print("延迟："+str(timeout)+"s")
 
-    result=get_data('https://www.youtube.com/channel/UCWCc8tO-uUl_7SJXIKJACMw','youtobe_mea')
-    write_data(result,'youtobe_mea.csv')
+    result=get_data('https://www.youtube.com/channel/UC4YaOt1yT-ZeyB0OmxHgolA','youtobe_aichannel')
+    write_data(result,'youtobe_aichannel.csv')
 
     timer = threading.Timer(timeout, start)#一小时=3600s
     timer.start()
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     temp.append('时间')
     temp.append('订阅数')
     final.append(temp)
-    with open('youtobe_mea.csv', 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+    with open('youtobe_aichannel.csv', 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
             f_csv = csv.writer(f)
             f_csv.writerows(final)
     timer = threading.Timer(0, start)
