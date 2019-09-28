@@ -30,9 +30,11 @@ https://www.python.org/ftp/python/3.7.3/
 Linux系统 nohup python3 /root/test/XXXXX.py(文件路径每个人都不一样,用filezilla把文件传上linux服务器)
 
 Linux 定时循环执行 python 脚本 - sherlockChen - 博客园
+
 https://www.cnblogs.com/sherlockChen/p/8196590.html
 
 每天一个linux命令（50）：crontab命令 - peida - 博客园
+
 https://www.cnblogs.com/peida/archive/2013/01/08/2850483.html
 
 * 其它
