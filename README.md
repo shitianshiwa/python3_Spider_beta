@@ -5,6 +5,9 @@
 ## 需要下载 https://www.python.org/downloads/
 https://www.python.org/ftp/python/3.7.3/
 
+# 可以用openoffice打开csv文件或转换文件
+* http://www.openoffice.org/
+
 ## 全部都需要安装的依赖库
 * pip3 install BeautifulSoup4
 ## 可选（更新pip用）
