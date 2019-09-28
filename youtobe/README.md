@@ -20,6 +20,8 @@ phantomjs
 phantomjs> phantom.version
 
 来源：https://blog.csdn.net/yin__ren/article/details/79410393 
+
 参考：https://www.vultr.com/docs/how-to-install-phantomjs-on-ubuntu-16-04
+
 PhantomJS：https://bitbucket.org/ariya/phantomjs/downloads/
 
