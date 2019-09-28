@@ -29,13 +29,15 @@ https://www.python.org/ftp/python/3.7.3/
 * 杀死进程 PID（数字）
 Linux系统 nohup python3 /root/test/XXXXX.py(文件路径每个人都不一样,用filezilla把文件传上linux服务器)
 
-Linux 定时循环执行 python 脚本 - sherlockChen - 博客园<br/>
+Linux 定时循环执行 python 脚本 - sherlockChen - 博客园
 https://www.cnblogs.com/sherlockChen/p/8196590.html
 
 每天一个linux命令（50）：crontab命令 - peida - 博客园
 https://www.cnblogs.com/peida/archive/2013/01/08/2850483.html
 
-一、crond简介
+* 其它
+crond简介
+
 crond是linux下用来周期性的执行某种任务或等待处理某些事件的一个守护进程，与windows下的计划任务类似，当安装完成操作系统后，默认会安装此服务工具，并且会自动启动crond进程，crond进程每分钟会定期检查是否有要执行的任务，如果有要执行的任务，则自动执行该任务。
 
 
