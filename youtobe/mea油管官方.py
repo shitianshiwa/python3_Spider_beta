@@ -1,8 +1,8 @@
 #-*-coding:utf-8 -*-
 #(beta)0.1
 '''
-(beta)0.61
-后台运行 nohup python3 /root/test/mea油管官方
+(beta)0.1
+后台运行 nohup python3 /root/test/mea油管官方.py
 显示所有进程 ps aux
 杀死进程 PID（数字）
 Linux系统 nohup python3 /root/test/AIChannel官方0.6.py(文件路径每个人都不一样,用filezilla把文件传上linux服务器)
