@@ -23,6 +23,7 @@ https://www.python.org/ftp/python/3.7.3/
 * python3最后支持的windows xp系统的版本是3.4.4
 * https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi
 
+# Linux 定时循环执行
 * 后台运行 nohup python3 /root/test/XXXXX.py &
 * 显示所有进程 ps aux
 * 杀死进程 PID（数字）
