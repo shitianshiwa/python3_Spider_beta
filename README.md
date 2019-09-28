@@ -11,6 +11,9 @@ https://www.python.org/ftp/python/3.7.3/
 * python -m pip install --upgrade pip
 * pip3 install --upgrade pip
 
+# 注意
+* 可能存在无法访问到链接的错误，暂时没有方法解决
+
 # 参考
 * [爬虫入门教程 —— 1](https://blog.csdn.net/redpintings/article/details/79916679)
 * [【Python】Python处理csv文件](https://www.cnblogs.com/yanglang/p/7126660.html)
