@@ -1,3 +1,4 @@
+# 使用前需要先确认可以上到youtobe网站，需要全局代理
 # 需要安装
 * pip3 install BeautifulSoup4
 * pip3 install selenium==2.53.6

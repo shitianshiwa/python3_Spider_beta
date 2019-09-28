@@ -1,7 +1,6 @@
 #-*-coding:utf-8 -*-
 #(beta)0.1
 '''
-(beta)0.1
 后台运行 nohup python3 /root/test/mea油管官方.py
 显示所有进程 ps aux
 杀死进程 PID（数字）
@@ -106,12 +105,14 @@ def get_data(url,logname):
         if(browser!=None):
             browser.service.process.send_signal(signal.SIGTERM)
             browser.quit()
-        if(b>=3):
+        if(b>3):
             exit()
         with open(logname+'_log.txt', 'a', encoding='utf-8') as f:
             f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
-        timer = threading.Timer(10, start)
+        timeoutx = 10+random.choice(range(1,10))
+        print("错误延迟："+str(timeoutx)+"s")
+        timer = threading.Timer(timeoutx, start)
         timer.start()
     finally:
         print(datetime.now())
@@ -127,9 +128,9 @@ def write_data(data, name):
 def start():
     global timer
     if(timer!=None):
-            timer.cancel()
+        timer.cancel()
     #print("2233")
-    timeout=10
+    timeout=3600
     print("延迟："+str(timeout)+"s")
 
     result=get_data('https://www.youtube.com/channel/UCWCc8tO-uUl_7SJXIKJACMw','youtobe_mea')
