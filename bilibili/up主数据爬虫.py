@@ -1,6 +1,6 @@
 #-*-coding:utf-8 -*-
 '''
-(beta)0.70
+(beta)0.74
 后台运行 nohup python3 /root/test/up主数据爬虫.py &
 显示所有进程 ps aux
 杀死进程 PID（数字）
@@ -26,6 +26,12 @@ from bs4 import BeautifulSoup
 
 browser=None
 timer=None
+dizhi=['https://api.bilibili.com/x/relation/stat?vmid=349991143',
+       'https://api.bilibili.com/x/relation/stat?vmid=375504219',
+       'https://api.bilibili.com/x/relation/stat?vmid=1473830',
+       'https://api.bilibili.com/x/relation/stat?vmid=12434430',
+       'https://api.bilibili.com/x/relation/stat?vmid=386900246']
+mingzi=['mea','aqua','AIChannel','ltt','七奈']
 
 #logname='mea_log.txt'
 #global b#全局变量
@@ -81,6 +87,8 @@ def get_data(url,logname,timeoutx):
     try:
         browser = getSource(url)
         bs = BeautifulSoup(browser, 'html.parser')
+        with open( 'bilibili_up_error.html', 'w', encoding='utf-8') as f:
+            f.write(str(bs))
         #print(bs)
         data = bs.string.split(":")#字符串切割获得字符串数组
         #print(data)
@@ -114,19 +122,19 @@ def write_data(data, name):
 
 def init():
     global timer
+    global dizhi
+    global mingzi
     timer.cancel()
     #print("2233")
     timeoutx = 180+random.choice(range(1,10))
     print("延迟："+str(timeoutx)+"s")
-    
-    get_data("https://api.bilibili.com/x/relation/stat?vmid=349991143","mea",timeoutx)#mea
 
-    get_data("https://api.bilibili.com/x/relation/stat?vmid=375504219","aqua",timeoutx)#湊-阿库娅Official
+    i=0
+    while(i<5):
+        get_data(dizhi[i],mingzi[i],timeoutx)
+        i=i+1
+        time.sleep(2)
 
-    get_data("https://api.bilibili.com/x/relation/stat?vmid=1473830","AIChannel",timeoutx)#AIChannel
-
-    get_data("https://api.bilibili.com/x/relation/stat?vmid=12434430","ltt",timeoutx)#Linustechtips
-    
     timer = threading.Timer(timeoutx,init)
     timer.start()
     
@@ -141,4 +149,13 @@ Oo♡ 和Mea的约定 ♡oO ▪ 直播时请不要和其他观众进行版聊。
 holoIive二期生、虚拟女仆、湊(みなと)あくあ！ ❖担当画师：がおう 协力：湊阿库娅字幕组。 商务合作与问题反馈请私信。
 Hi Domo-!这里是想要和更多人建立羁绊的KizunaAI绊爱，请多支持(ง •̀_•́)ง微博@Kizuna_AI爱酱
 刚投稿的视频若突然消失是因为发现错误回炉，不是网站问题。
+    get_data("https://api.bilibili.com/x/relation/stat?vmid=349991143","mea",timeoutx)#mea
+    time.sleep(5)
+    get_data("https://api.bilibili.com/x/relation/stat?vmid=375504219","aqua",timeoutx)#湊-阿库娅Official
+    time.sleep(5)
+    get_data("https://api.bilibili.com/x/relation/stat?vmid=1473830","AIChannel",timeoutx)#AIChannel
+    time.sleep(5)
+    get_data("https://api.bilibili.com/x/relation/stat?vmid=12434430","ltt",timeoutx)#Linustechtips
+    time.sleep(5)
+    get_data("https://api.bilibili.com/x/relation/stat?vmid=386900246","七奈",timeoutx)#神乐七奈
 '''

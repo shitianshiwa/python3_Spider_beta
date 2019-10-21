@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#beta0.1
+#beta0.11
 #import urllib
 #from urllib import request as r
 #repr = r.urlopen("http://www.baidu.com")
@@ -73,6 +73,8 @@ def get_data(html_text):
     try:
         final = []
         bs = BeautifulSoup(html_text, "html.parser")  # 创建BeautifulSoup对象
+        with open( 'bilibili_log.html', 'w', encoding='utf-8') as f:
+            f.write(str(bs)) 
         data2 = json.loads(str(bs))
         data3=data2['content']
         i=1
@@ -96,7 +98,7 @@ def get_data(html_text):
         return final
     except Exception as err:
         with open( 'biliob_log.txt', 'a', encoding='utf-8') as f:
-            f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+            f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n") 
         print(datetime.now())
         exit()
     finally:
@@ -113,7 +115,7 @@ def start():
     global timer
     timer.cancel()
     #print("2233")
-    timeout=86400
+    timeout=86400#24小时
     print("延迟："+str(timeout)+"s")
     
     url ='https://www.biliob.com/api/bangumi'

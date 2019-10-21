@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#(beta)0.1
+#(beta)0.11
 '''
 后台运行 nohup python3 /root/test/mea油管官方.py
 显示所有进程 ps aux
@@ -79,6 +79,8 @@ def get_data(url,logname):
         browser = getSource()
         browser.get(url)
         bs = BeautifulSoup(str(browser.page_source), 'html.parser')#subscriberCountText
+        with open( 'youtobe_mea_log.html', 'w', encoding='utf-8') as f:
+                 f.write(str(bs))  
         #print(bs)
         body = bs.find_all('script')
         body2=body[26]
@@ -105,12 +107,12 @@ def get_data(url,logname):
         if(browser!=None):
             browser.service.process.send_signal(signal.SIGTERM)
             browser.quit()
-        if(b>3):
+        if(b>10):
             exit()
         with open(logname+'_log.txt', 'a', encoding='utf-8') as f:
             f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
-        timeoutx = 10+random.choice(range(1,10))
+        timeoutx = 10+random.choice(range(5,20))
         print("错误延迟："+str(timeoutx)+"s")
         timer = threading.Timer(timeoutx, start)
         timer.start()

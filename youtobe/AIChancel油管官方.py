@@ -79,6 +79,8 @@ def get_data(url,logname):
         browser = getSource()
         browser.get(url)
         bs = BeautifulSoup(str(browser.page_source), 'html.parser')#subscriberCountText
+        with open( 'youtobe_aic_log.html', 'w', encoding='utf-8') as f:
+                 f.write(str(bs)) 
         #print(bs)
         body = bs.find_all('script')
         body2=body[26]

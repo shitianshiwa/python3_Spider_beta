@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#(beta)0.21
+#(beta)0.22
 import threading
 import requests
 import csv
@@ -7,11 +7,15 @@ import random
 import time
 import socket
 import http.client
+import json
 import urllib.request
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-logname='bilibili_log2.txt'
+logname='bilibili_log.txt'
+A=['https://api.bilibili.com/pgc/view/web/media?media_id=139632','https://api.bilibili.com/pgc/view/web/media?media_id=28221404','https://api.bilibili.com/pgc/view/web/media?media_id=4316442']
+B=['邻家索菲','街角魔族','天使降临到我身边']
+C=['B站邻家索菲数据.csv','B站街角魔族数据.csv','天使降临到我身边.csv']
 timer=None
 
 def get_content(url , data = None):
@@ -61,24 +65,30 @@ def get_data(html_text,name):
     try:
         final = []
         bs = BeautifulSoup(html_text, "html.parser")  # 创建BeautifulSoup对象
-        body = bs.body # 获取body部分
-        data = body.find('div', {'class': 'media-info-datas'})  # 找到class为media-info-datas的div
-        data1 = data.find('div', {'class': 'media-info-count'})  #找到class为media-info-count的div
-        data2 = data1.find_all('span', {'class': 'media-info-label'})#找到class为media-info-label的span，文字总播放数，追番人数，弹幕总数
-        em= data1.find_all('em')  # 获取所有的em,数字总播放数，追番人数，弹幕总数
-        data3 = data.find('div', {'class': 'media-info-score-wrp'})  #找到class为media-info-score-wrp的div
-        data4= data3.find('div', {'class': 'media-info-score-content'})#评分
-        data5= data3.find('div', {'class': 'media-info-review-times'})#评分人数
+        with open( 'bilibili_fanju_log.html', 'w', encoding='utf-8') as f:
+             f.write(str(bs))
+        '''
+        #https://www.runoob.com/python3/python3-json.html
+        json.dumps(): 对数据进行编码。
+        json.loads(): 对数据进行解码。
+        #json_str = json.dumps(str(bs))
+        '''
+        data2 = json.loads(str(bs))
+        #print(data2['result']['stat'])
+        #print(data2['result']['rating'])
+        data={}
+        data[0] = data2['result']['stat']['views']#总播放数
+        data[1] = data2['result']['stat']['favorites']#追番人数
+        data[2] = data2['result']['stat']['danmakus'] #弹幕总数
+        data[3] = data2['result']['rating']['score']#评分
+        data[4] = data2['result']['rating']['count']#评分人数
         temp=[]
         temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         count = 0
-        while count < 3:
-            #temp.append(data2[count].string)
-            temp.append(em[count].string)
+        while count < 5:
+            temp.append(data[count])
             count = count + 1
         #print (count, " 小于 5")
-        temp.append(data4.string)
-        temp.append(data5.string)
         print(name+":"+str(temp))
         final.append(temp)
         return final
@@ -102,23 +112,23 @@ def start():
     global timer
     timer.cancel()
     #print("2233")
-    timeout=86400
+    timeout=3600
     print("延迟："+str(timeout)+"s")
 
-    html = get_content('https://www.bilibili.com/bangumi/media/md139632/')#邻家索菲
-    result = get_data(html,'邻家索菲2')
-    write_data(result,'B站邻家索菲数据2.csv')
+    i=0
+    while(i<3):
+        html = get_content(A[i])
+        result = get_data(html,B[i])
+        write_data(result,C[i])
+        i=i+1
+        time.sleep(2)
 
-    html = get_content('https://www.bilibili.com/bangumi/media/md28221404/')#街角魔族
-    result = get_data(html,'街角魔族2') 
-    write_data(result, 'B站街角魔族数据2.csv')
-
-    html = get_content('https://www.bilibili.com/bangumi/media/md4316442/')#天使降临到我身边
-    result = get_data(html,'天使降临到我身边2') 
-    write_data(result, '天使降临到我身边2.csv')
-    
     timer = threading.Timer(timeout, start)#一小时=3600s
     timer.start()
+    
+    #html = get_content('https://api.bilibili.com/pgc/view/web/media?media_id=139632')#邻家索菲 https://www.bilibili.com/bangumi/media/md139632/
+    #result = get_data(html,'邻家索菲')
+    #write_data(result,'B站邻家索菲数据.csv')
     
     #with open( 'bilibili.html', 'w', encoding='utf-8') as f:
          #f.write(str(result))
