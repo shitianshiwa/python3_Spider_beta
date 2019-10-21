@@ -44,12 +44,12 @@ https://www.cnblogs.com/sherlockChen/p/8196590.html
 
 https://www.cnblogs.com/peida/archive/2013/01/08/2850483.html
 
-* 其它
+# 其它
 crond简介
 
 crond是linux下用来周期性的执行某种任务或等待处理某些事件的一个守护进程，与windows下的计划任务类似，当安装完成操作系统后，默认会安装此服务工具，并且会自动启动crond进程，crond进程每分钟会定期检查是否有要执行的任务，如果有要执行的任务，则自动执行该任务。
 
-* 个人记录
+# 个人记录
 因意外丢失了2019-10月10日至10月18日的记录数据
 
 
