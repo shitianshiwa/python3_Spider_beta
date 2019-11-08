@@ -9,10 +9,10 @@ https://www.python.org/ftp/python/3.7.3/
 * http://www.openoffice.org/
 
 ## 全部都需要安装的依赖库
-* pip3 install BeautifulSoup4
-* pip install requests
+* python3 -m pip install BeautifulSoup4
+* python3 -m pip install requests
 ## 可选（更新pip用）
-* python -m pip install --upgrade pip(推荐)
+* python3 -m pip install --upgrade pip(推荐)
 * pip3 install --upgrade pip
 
 # 注意

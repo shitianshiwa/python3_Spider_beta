@@ -1,6 +1,6 @@
-#-*-coding:utf-8 -*-
+# -*-coding:utf-8 -*-
 '''
-(beta)0.74
+(beta)0.742
 后台运行 nohup python3 /root/test/up主数据爬虫.py &
 显示所有进程 ps aux
 杀死进程 PID（数字）
@@ -13,6 +13,7 @@ https://www.cnblogs.com/peida/archive/2013/01/08/2850483.html
 
 crond是linux下用来周期性的执行某种任务或等待处理某些事件的一个守护进程，与windows下的计划任务类似，当安装完成操作系统后，默认会安装此服务工具，并且会自动启动crond进程，crond进程每分钟会定期检查是否有要执行的任务，如果有要执行的任务，则自动执行该任务。
 '''
+import os
 import threading
 import requests
 import csv
@@ -24,30 +25,32 @@ import urllib.request
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-browser=None
-timer=None
-dizhi=['https://api.bilibili.com/x/relation/stat?vmid=349991143',
-       'https://api.bilibili.com/x/relation/stat?vmid=375504219',
-       'https://api.bilibili.com/x/relation/stat?vmid=1473830',
-       'https://api.bilibili.com/x/relation/stat?vmid=12434430',
-       'https://api.bilibili.com/x/relation/stat?vmid=386900246']
-mingzi=['mea','aqua','AIChannel','ltt','七奈']
+browser = None
+timer = None
+wenjianjia=''
+dizhi = ['https://api.bilibili.com/x/relation/stat?vmid=349991143',
+         'https://api.bilibili.com/x/relation/stat?vmid=375504219',
+         'https://api.bilibili.com/x/relation/stat?vmid=1473830',
+         'https://api.bilibili.com/x/relation/stat?vmid=12434430',
+         'https://api.bilibili.com/x/relation/stat?vmid=386900246']
+mingzi = ['mea', 'aqua', 'AIChannel', 'ltt', '七奈']
 
-#logname='mea_log.txt'
-#global b#全局变量
-#url ='https://api.bilibili.com/x/relation/stat?vmid=349991143'#关注数，粉丝数等
+# logname='mea_log.txt'
+# global b#全局变量
+# url ='https://api.bilibili.com/x/relation/stat?vmid=349991143'#关注数，粉丝数等
+
 
 def getSource(url):
     headers = {
         'Accept': 'application/json, text/plain, */*',
         'Content-Encoding': 'gzip',
         'Content-Type': 'application/json; charset=utf-8',
-        'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
     }
     timeout = random.choice(range(80, 180))
     while True:
         try:
-            rep = requests.get(url,headers = headers,timeout = timeout)
+            rep = requests.get(url, headers=headers, timeout=timeout)
             rep.encoding = 'utf-8'
             # req = urllib.request.Request(url, data, header)
             # response = urllib.request.urlopen(req, timeout=timeout)
@@ -62,89 +65,114 @@ def getSource(url):
         #     print( '2:', e)
         #     time.sleep(random.choice(range(5, 10)))
         except socket.timeout as e:
-            print( '3:', e)
-            time.sleep(random.choice(range(8,15)))
+            print('3:', e)
+            time.sleep(random.choice(range(8, 15)))
 
         except socket.error as e:
-            print( '4:', e)
+            print('4:', e)
             time.sleep(random.choice(range(20, 60)))
 
         except http.client.BadStatusLine as e:
-            print( '5:', e)
+            print('5:', e)
             time.sleep(random.choice(range(30, 80)))
 
         except http.client.IncompleteRead as e:
-            print( '6:', e)
+            print('6:', e)
             time.sleep(random.choice(range(5, 15)))
 
     return rep.text
 
-def get_data(url,logname,timeoutx):
+
+def get_data(url, logname, timeoutx):
     global browser
-    
+    global wenjianjia
     #global timer
     #global url
     try:
         browser = getSource(url)
         bs = BeautifulSoup(browser, 'html.parser')
-        with open( 'bilibili_up_error.html', 'w', encoding='utf-8') as f:
+        with open('./'+wenjianjia+'/'+'bilibili_up_error.html', 'w', encoding='utf-8') as f:
             f.write(str(bs))
-        #print(bs)
-        data = bs.string.split(":")#字符串切割获得字符串数组
-        #print(data)
-        valuex=data[len(data)-1].split("}")[0]#字符串再切割获得目标值
+        # print(bs)
+        data = bs.string.split(":")  # 字符串切割获得字符串数组
+        # print(data)
+        valuex = data[len(data)-1].split("}")[0]  # 字符串再切割获得目标值
         print(logname+",粉丝数："+valuex)
         final = []
-        temp=[]
+        temp = []
         temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         temp.append(valuex)
         final.append(temp)
-        write_data(final, logname+'.csv')
-        with open( logname+'_log.txt', 'a', encoding='utf-8') as f:
-            f.write("\n"+"粉丝数："+valuex+",延迟："+str(timeoutx)+"s"+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")   
+        write_data(final, './'+wenjianjia+'/'+logname+'.csv')
+        with open('./'+wenjianjia+'/'+logname+'_log.txt', 'a', encoding='utf-8') as f:
+            f.write("\n"+"粉丝数："+valuex+",延迟："+str(timeoutx)+"s"+"\n" +
+                    time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         #timer = threading.Timer(timeoutx, get_data(url,logname))
-        #timer.start()
-            
+        # timer.start()
+
     except Exception as err:
-        #timer.cancel()
-        with open( logname, 'a', encoding='utf-8') as f:
-            f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+        # timer.cancel()
+        with open('./'+wenjianjia+'/'+logname+'_error.txt', 'a', encoding='utf-8') as f:
+            f.write("\n"+str(err)+"\n" +
+                    time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
         exit()
     finally:
         print(datetime.now())
-        
+
+
 def write_data(data, name):
     file_name = name
-    with open(file_name, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
-            f_csv = csv.writer(f)
-            f_csv.writerows(data)
+    with open(file_name, 'a', errors='ignore', newline='') as f:  # 'a'  模式，追加内容
+        f_csv = csv.writer(f)
+        f_csv.writerows(data)
+
 
 def init():
     global timer
     global dizhi
     global mingzi
-    timer.cancel()
-    #print("2233")
-    timeoutx = 180+random.choice(range(1,10))
+    global wenjianjia
+    # timer.cancel()
+    # print("2233")
+    timeoutx = 180+random.choice(range(1, 10))
     print("延迟："+str(timeoutx)+"s")
 
-    i=0
-    while(i<5):
-        get_data(dizhi[i],mingzi[i],timeoutx)
-        i=i+1
+    i = 0
+    while(i < len(mingzi)):
+        get_data(dizhi[i], mingzi[i], timeoutx)#timeoutx并没有使用，只是传进去放着
+        i = i+1
         time.sleep(2)
 
-    timer = threading.Timer(timeoutx,init)
+    timer = threading.Timer(timeoutx, init)
     timer.start()
-    
-    #with open( 'bilibili4.html', 'w', encoding='utf-8') as f:
-         #f.write(str(result))
-    
+
+    # with open( 'bilibili4.html', 'w', encoding='utf-8') as f:
+    # f.write(str(result))
+
+
 if __name__ == '__main__':
-    timer = threading.Timer(0,init)
-    timer.start()
+    wenjianjia='up主数据爬虫'
+    try:
+        os.makedirs(wenjianjia)
+    except Exception as err:  # FileExistsError or OSError:
+        print(str(err))
+    final = []
+    temp = []
+    temp.append('时间')
+    temp.append('关注数')
+    final.append(temp)
+    i=0
+    while(i < len(mingzi)):
+        with open('./'+wenjianjia+'/'+mingzi[i]+'.csv', 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+            f_csv = csv.writer(f)
+            f_csv.writerows(final)
+        i = i+1
+    init()
+    #timer = threading.Timer(0,init)
+    # timer.start()
 '''
+时间，关注数
 Oo♡ 和Mea的约定 ♡oO ▪ 直播时请不要和其他观众进行版聊。 ▪ 若是性质低劣的评论一直出现会视情况进行封禁。 ▪ 请各位观众不要单方面地提及其他主播的名字。在他人直播间也是同样的，主播未提及时，请尽量不要提起神乐Mea的话题 ▪ 一起遵守礼仪然后享受（？）直播吧！
 holoIive二期生、虚拟女仆、湊(みなと)あくあ！ ❖担当画师：がおう 协力：湊阿库娅字幕组。 商务合作与问题反馈请私信。
 Hi Domo-!这里是想要和更多人建立羁绊的KizunaAI绊爱，请多支持(ง •̀_•́)ง微博@Kizuna_AI爱酱

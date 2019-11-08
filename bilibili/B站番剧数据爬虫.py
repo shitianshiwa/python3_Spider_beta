@@ -1,5 +1,6 @@
 #-*-coding:utf-8 -*-
-#(beta)0.22
+#(beta)0.222
+import os
 import threading
 import requests
 import csv
@@ -9,13 +10,16 @@ import socket
 import http.client
 import json
 import urllib.request
+import B站番剧数据爬虫2
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+wenjianjia=''
 logname='bilibili_log.txt'
 A=['https://api.bilibili.com/pgc/view/web/media?media_id=139632','https://api.bilibili.com/pgc/view/web/media?media_id=28221404','https://api.bilibili.com/pgc/view/web/media?media_id=4316442']
 B=['邻家索菲','街角魔族','天使降临到我身边']
 C=['B站邻家索菲数据.csv','B站街角魔族数据.csv','天使降临到我身边.csv']
+C2=['B站邻家索菲数据2.csv','B站街角魔族数据2.csv','天使降临到我身边2.csv']
 timer=None
 
 def get_content(url , data = None):
@@ -62,10 +66,11 @@ def get_content(url , data = None):
     #return html_text
     
 def get_data(html_text,name):
+    global wenjianjia
     try:
         final = []
         bs = BeautifulSoup(html_text, "html.parser")  # 创建BeautifulSoup对象
-        with open( 'bilibili_fanju_log.html', 'w', encoding='utf-8') as f:
+        with open('./'+wenjianjia+'/'+'bilibili_fanju_log.html', 'w', encoding='utf-8') as f:
              f.write(str(bs))
         '''
         #https://www.runoob.com/python3/python3-json.html
@@ -95,7 +100,7 @@ def get_data(html_text,name):
     
     except Exception as err:
         #timer.cancel()
-        with open( logname, 'a', encoding='utf-8') as f:
+        with open('./'+wenjianjia+'/'+logname, 'a', encoding='utf-8') as f:
             f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
         exit()
@@ -103,26 +108,27 @@ def get_data(html_text,name):
         print(datetime.now())
 
 def write_data(data, name):
-    file_name = name
-    with open('./'+file_name, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+    with open(name, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
             f_csv = csv.writer(f)
             f_csv.writerows(data)
             
 def start():
     global timer
-    timer.cancel()
+    global wenjianjia
+    #if timer!=None:
+        #timer.cancel()
     #print("2233")
-    timeout=3600
+    timeout=3600+random.choice(range(1, 10))
     print("延迟："+str(timeout)+"s")
-
     i=0
-    while(i<3):
+    while(i<len(C)):
         html = get_content(A[i])
         result = get_data(html,B[i])
-        write_data(result,C[i])
+        write_data(result,'./'+wenjianjia+'/'+C[i])
         i=i+1
         time.sleep(2)
 
+    B站番剧数据爬虫2.start()
     timer = threading.Timer(timeout, start)#一小时=3600s
     timer.start()
     
@@ -134,8 +140,35 @@ def start():
          #f.write(str(result))
     
 if __name__ == '__main__':
-    timer = threading.Timer(0, start)
-    timer.start()
+    wenjianjia='B站番剧数据爬虫'
+    try:
+        os.makedirs(wenjianjia)
+    except Exception as err:
+        print(str(err))
+    final=[]
+    temp=[]
+    Temp =['时间','播放数','关注','弹幕','评分','评分人数']#共6个
+    count = 0
+    while count < len(Temp):
+        temp.append(Temp[count])
+        count = count + 1
+    final.append(temp)
+    i=0
+    while(i<len(C)):
+        with open('./'+wenjianjia+'/'+C[i], 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+            f_csv = csv.writer(f)
+            f_csv.writerows(final)
+        i=i+1
+    i=0
+    while(i<len(C2)):
+        with open('./'+wenjianjia+'/'+C2[i], 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+            f_csv = csv.writer(f)
+            f_csv.writerows(final)
+        i=i+1
+
+    start()
+    #timer = threading.Timer(0, start)
+    #timer.start()
     
 '''
 邻家索菲 萌系漫画改

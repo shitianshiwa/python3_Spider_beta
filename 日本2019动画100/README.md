@@ -1,5 +1,5 @@
-# 这个有问题，偶尔浏览器会无法获取到关注数
-# 使用前需要先确认可以上到youtobe网站，需要全局代理
+# https://best100.animefestival.jp/
+* 2019-12-2星期一
 # 需要安装
 * pip3 install BeautifulSoup4
 * pip3 install selenium==2.53.6

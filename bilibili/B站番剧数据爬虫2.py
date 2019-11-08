@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#(beta)0.21
+#(beta)0.212
 import threading
 import requests
 import csv
@@ -11,6 +11,7 @@ import urllib.request
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+wenjianjia='B站番剧数据爬虫'
 logname='bilibili_log2.txt'
 timer=None
 A=['https://www.bilibili.com/bangumi/media/md139632/','https://www.bilibili.com/bangumi/media/md28221404/','https://www.bilibili.com/bangumi/media/md4316442/']
@@ -61,15 +62,16 @@ def get_content(url , data = None):
     #return html_text
     
 def get_data(html_text,name):
+    global wenjianjia
     try:
         final = []
         bs = BeautifulSoup(html_text, "html.parser")  # 创建BeautifulSoup对象
-        with open( 'bilibili_fanju_log2.html', 'w', encoding='utf-8') as f:
+        with open( './'+wenjianjia+'/'+'bilibili_fanju_log2.html', 'w', encoding='utf-8') as f:
              f.write(str(bs))
         body = bs.body # 获取body部分
         data = body.find('div', {'class': 'media-info-datas'})  # 找到class为media-info-datas的div
         data1 = data.find('div', {'class': 'media-info-count'})  #找到class为media-info-count的div
-        data2 = data1.find_all('span', {'class': 'media-info-label'})#找到class为media-info-label的span，文字总播放数，追番人数，弹幕总数
+        #data2 = data1.find_all('span', {'class': 'media-info-label'})#找到class为media-info-label的span，文字总播放数，追番人数，弹幕总数
         em= data1.find_all('em')  # 获取所有的em,数字总播放数，追番人数，弹幕总数
         data3 = data.find('div', {'class': 'media-info-score-wrp'})  #找到class为media-info-score-wrp的div
         data4= data3.find('div', {'class': 'media-info-score-content'})#评分
@@ -90,36 +92,37 @@ def get_data(html_text,name):
     
     except Exception as err:
         #timer.cancel()
-        with open( logname, 'a', encoding='utf-8') as f:
+        with open( './'+wenjianjia+'/'+logname, 'a', encoding='utf-8') as f:
             f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
-        exit()
+        #exit()
     finally:
         print(datetime.now())
 
 def write_data(data, name):
-    file_name = name
-    with open('./'+file_name, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+    with open(name, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
             f_csv = csv.writer(f)
             f_csv.writerows(data)
             
 def start():
-    global timer
-    timer.cancel()
+    global wenjianjia
+    #global timer
+    #if timer!=None:
+        #timer.cancel()
     #print("2233")
-    timeout=86400#24小时
-    print("延迟："+str(timeout)+"s")
+    #timeout=86400#24小时
+    #print("延迟："+str(timeout)+"s")
 
     i=0
-    while(i<3):
+    while(i<len(C)):
         html = get_content(A[i])
         result = get_data(html,B[i])
-        write_data(result,C[i])
+        write_data(result,'./'+wenjianjia+'/'+C[i])
         i=i+1
         time.sleep(2)
 
-    timer = threading.Timer(timeout, start)#一小时=3600s
-    timer.start()
+    #timer = threading.Timer(timeout, start)#一小时=3600s
+    #timer.start()
 
     #html = get_content('https://www.bilibili.com/bangumi/media/md4316442/')#天使降临到我身边
     #result = get_data(html,'天使降临到我身边2') 
@@ -128,9 +131,12 @@ def start():
     #with open( 'bilibili.html', 'w', encoding='utf-8') as f:
          #f.write(str(result))
     
+
 if __name__ == '__main__':
-    timer = threading.Timer(0, start)
-    timer.start()
+    wenjianjia='B站番剧数据爬虫'
+    start()
+    #timer = threading.Timer(0, start)
+    #timer.start()
     
 '''
 邻家索菲 萌系漫画改

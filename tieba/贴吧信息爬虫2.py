@@ -1,6 +1,6 @@
 #coding : UTF-8
 '''
-版本0.13(beta)
+版本0.132(beta)
 后台运行 nohup python3 /root/test/贴吧信息爬虫2.py
 '''
 import os
@@ -19,8 +19,11 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+wenjianjia=''
 tieba={}
 timer=None
+countx = 0
+errorx=0
 '''
 def req_maker(path):
     if path:
@@ -69,6 +72,7 @@ def getSource():
     return driver
 
 def get_data(name,browser):
+    global wenjianjia
     final = []
     str2=name.encode('utf-8')
     str2=str(str2).replace('\\x','%')
@@ -92,11 +96,11 @@ def get_data(name,browser):
     browser.get(html_str3)
     html_tree3 = BeautifulSoup(str(browser.page_source), 'html.parser')
     #备份当时获取到的内容，以备以后需要时查看
-    with open( './贴吧信息记录/百度贴吧'+name+'吧.html', 'w', encoding='utf-8') as f:
+    with open( './'+wenjianjia+'/'+'百度贴吧'+name+'吧.html', 'w', encoding='utf-8') as f:
         f.write(str(html_tree1))
-    with open( './贴吧信息记录/百度贴吧'+name+'吧.json', 'w', encoding='utf-8') as f:
+    with open( './'+wenjianjia+'/'+'百度贴吧'+name+'吧.json', 'w', encoding='utf-8') as f:
         f.write(str(html_tree2))
-    with open( './贴吧信息记录/百度贴吧'+name+'精品区.html', 'w', encoding='utf-8') as f:
+    with open( './'+wenjianjia+'/'+'百度贴吧'+name+'精品区.html', 'w', encoding='utf-8') as f:
         f.write(str(html_tree3))
         
     #print(html_tree1)
@@ -188,7 +192,7 @@ def get_data(name,browser):
     print(str(temp))
     final.append(temp)
         
-    write_data(final, './贴吧信息记录/百度贴吧'+name+'吧.csv')
+    write_data(final, './'+wenjianjia+'/'+'百度贴吧'+name+'吧.csv')
 
 def write_data(data, name):
     file_name = name
@@ -197,19 +201,22 @@ def write_data(data, name):
             f_csv.writerows(data)
 
 def start():
+    global wenjianjia
+    global countx
+    global errorx
     try:
         global timer
-        timer.cancel()
+        #timer.cancel()
         browser = getSource()
         #print("2233")
         timeout=3600+random.choice(range(30,60))
         print("延迟："+str(timeout)+"s")
         
-        count = 0
-        while count < len(tieba):
-            result = get_data(tieba[count],browser)
-            time.sleep(1)#延迟
-            count = count + 1
+        while countx < len(tieba):
+            get_data(tieba[countx],browser)
+            time.sleep(2)#延迟
+            countx = countx + 1
+        countx = 0
         browser.service.process.send_signal(signal.SIGTERM)#进程终止
         browser.quit()
         print(datetime.now())
@@ -220,11 +227,16 @@ def start():
             browser.service.process.send_signal(signal.SIGTERM)
             browser.quit()
         #print(str(err))
-        with open('./贴吧信息记录/tieba_log.txt', 'a', encoding='utf-8') as f:
-            f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+        with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
+            f.write("\n"+str(countx)+'.'+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+        time.sleep(60)#延迟
+        if(errorx<3):
+            errorx=errorx+1
+            start()
         print(datetime.now())
         exit()
     finally:
+        errorx=0
         print(datetime.now())
         
     #with open( '百度贴吧邻家索菲吧.csv', 'w', encoding='utf-8') as f:
@@ -237,10 +249,11 @@ if __name__ == '__main__':
     Tieba=["邻家的吸血鬼小妹","邻家索菲","魔兽地图编辑器","天使降临到我身边","天使降临到了我身边","vtuber","台风","东方","战争雷霆","舰队collection","街角魔族"]#11个
     Temp =['时间','贴吧名','贴吧id','贴吧目录1','贴吧目录2','当日即时关注人数(网页获取)','当日关注人数(api获取)','当日即时主题贴数','当日即时贴子总数','当日即时精品贴总数','贴吧会员名','当日即时签到人数','当日即时签到排名',
            '昨日关注人数','昨日签到人数','昨日签到排名','每周关注人数','每周签到人数','每周签到排名','每月关注人数','每月签到人数','每月签到排名']#22个
+    wenjianjia='贴吧信息记录'
     try:
-        os.makedirs('贴吧信息记录')
-    except FileExistsError or OSError:
-        print('!!!--error--!!! FileExists')
+        os.makedirs(wenjianjia)
+    except Exception as err:#FileExistsError or OSError:
+        print(str(err))
     count = 0
     while count < len(Tieba):
         tieba[count] = Tieba[count]
@@ -252,12 +265,13 @@ if __name__ == '__main__':
     final.append(temp)
     count = 0
     while count < len(tieba):
-        with open('./贴吧信息记录/百度贴吧'+tieba[count]+'吧.csv', 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+        with open('./'+wenjianjia+'/'+'百度贴吧'+tieba[count]+'吧.csv', 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
             f_csv = csv.writer(f)
             f_csv.writerows(final)
         count = count + 1
-    timer = threading.Timer(0, start)
-    timer.start()
+    start()
+    #timer = threading.Timer(0, start)
+    #timer.start()
     '''
     tieba[0]="邻家的吸血鬼小妹"
     tieba[1]="邻家索菲"
