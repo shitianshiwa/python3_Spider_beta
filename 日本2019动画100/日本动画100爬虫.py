@@ -1,9 +1,9 @@
 # coding : UTF-8
 # html5lib 	BeautifulSoup(markup, "html5lib")
 '''
-版本0.011(beta)
+版本0.012(beta)
 后台运行 nohup python3 /root/test/日本动画100爬虫.py
-
+新增获取百分比数据项，2019-11-10
 Python 定时任务的实现方式
 https://www.cnblogs.com/fengff/p/11011000.html
 本文转载自：
@@ -71,31 +71,45 @@ def get_data(name, browser):
 
     #定位或切割获取到的文本内容
     tv = body.find('section', id='ranking-tv')
-    tv = tv.find_all('h2')
+    tv1 = tv.find_all('h2')
+    tv2 = tv.find_all('div',{'class': 'graph'})
+    #for temp in tv2:
+        #print(temp['style'].split(':')[1].split('%')[0])
     movie = body.find('section', id='ranking-movie')
-    movie = movie.find_all('h2')
+    movie1 = movie.find_all('h2')
+    movie2 = movie.find_all('div',{'class': 'graph'})
+    #for temp in movie2:
+        #print(temp['style'].split(':')[1].split('%')[0])
 
     final = []
     temp = []
-    temp.append('分割')
-    temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))#添加当时处理的时间，有微小误差
-    i = 1
-    for t in tv:
-        temp.append(str(i)+' . '+t.string)
-        # print(t.string)
-        i = i+1
+    temp.append('分割1')
+    temp.append(datetime.now())
+    #temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))#添加当时处理的时间，有微小误差
+    temp.append('分割2')
+    i = 0
+    while(i<len(tv1)):
+        temp.append(str(i+1)+' . '+tv1[i].string)
+        temp.append(tv2[i]['style'].split(':')[1].split('%')[0])
+        temp.append('分割2')
+        # print(tv1[i].string+','+tv2[i]['style'].split(':')[1].split('%')[0])
+        i=i+1
     final.append(temp)
     write_data(final, './'+wenjianjia+'/'+'best100_tv.csv')
 
     final = []
     temp = []
-    i = 1
-    temp.append('分割')
-    temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))#添加当时处理的时间，有微小误差
-    for m in movie:
-        temp.append(str(i)+' . '+m.string)
-        # print(m.string)
-        i = i+1
+    temp.append('分割1')
+    temp.append(datetime.now())
+    #temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))#添加当时处理的时间，有微小误差
+    temp.append('分割2')
+    i = 0
+    while(i<len(movie1)):
+        temp.append(str(i+1)+' . '+movie1[i].string)
+        temp.append(movie2[i]['style'].split(':')[1].split('%')[0])
+        temp.append('分割2')
+        # print(movie1[i].string+','+movie2[i]['style'].split(':')[1].split('%')[0])
+        i=i+1
     final.append(temp)
     write_data(final, './'+wenjianjia+'/'+'best100_movie.csv')
 
@@ -105,13 +119,11 @@ def get_data(name, browser):
     # with open( 'donghua.html', 'w', encoding='utf-8') as f:
        # f.write(str(tv))
 
-
 def write_data(data, name):
     file_name = name
     with open(file_name, 'a', errors='ignore', newline='') as f:  # 'a'  模式，追加内容 写文件
         f_csv = csv.writer(f)
         f_csv.writerows(data)
-
 
 def start():
     try:
@@ -162,64 +174,10 @@ https://tieba.baidu.com/f?kw=贴吧名
 http://tieba.baidu.com/sign/info?kw=贴吧名
 测试用的是这个版本
 https://www.python.org/downloads/release/python-368/
-python3 -m pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
+pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
 PhantomJS（https://github.com/ariya/phantomjs），放在python根目录的Scripts文件夹里
-linux上的安装命令
-介绍
-PhantomJS是一种脚本化的无头浏览器，可用于自动执行网页交互。PhantomJS是免费的开放源代码，并根据BSD许可进行分发。PhantomJS基于WebKit，与Safari和Google Chrome浏览器非常相似。PhantomJS JavaScript API可用于打开网页，执行用户操作和截屏。
-
-在本教程中，我们将学习如何在Ubuntu 16.04服务器上安装PhantomJS。
-
-先决条件
-Ubuntu 16.04服务器实例。
-一个sudo的用户。
-步骤1：更新系统
-在开始之前，建议使用最新的稳定版本更新系统。您可以使用以下命令执行此操作：(可以跳过)
-
-sudo apt-get update -y
-sudo apt-get upgrade -y
-sudo shutdown -r now
-步骤2：安装PhantomJS
-在安装PhantomJS之前，您需要在系统上安装一些必需的软件包。您可以使用以下命令安装所有组件：
-
-sudo apt-get install build-essential chrpath libssl-dev libxft-dev libfreetype6-dev libfreetype6 libfontconfig1-dev libfontconfig1 -y
-接下来，您将需要下载PhantomJS。您可以从其官方网站下载PhantomJS的最新稳定版本。运行以下命令以下载PhantomJS：
-
-sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-下载完成后，将下载的存档文件解压缩到所需的系统位置：
-
-sudo tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2 -C /usr/local/share/
-接下来，创建PhantomJS二进制文件到系统bin目录的符号链接：
-
-sudo ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin/
-步骤3：验证PhantomJS
-PhantomJS现在已安装在您的系统上。现在，您可以使用以下命令来验证PhantomJS的安装版本：
-
-phantomjs --version
-您应该看到以下输出：
-
-2.1.1
-您还可以从PhantomJS提示符下找到PhantomJS的版本，如下所示：
-
-phantomjs
-您将收到phantomjs提示：
-
-phantomjs>
-现在，运行以下命令以查找版本详细信息：
-
-phantomjs> phantom.version
-您应该看到以下输出：
-
-{
-   "major": 2,
-   "minor": 1,
-   "patch": 1
-}
-而已。您已在Ubuntu 16.04服务器上成功安装了PhantomJS。
-https://www.vultr.com/docs/how-to-install-phantomjs-on-ubuntu-16-04 
-
-python3 -m pip install beautifulsoup4 https://github.com/DeronW/beautifulsoup
-python3 -m pip install html5lib
+pip install beautifulsoup4 https://github.com/DeronW/beautifulsoup
+pip install html5lib
 python3 -m pip install html5lib
 
 Signal翻译过来中文就是信号- -
