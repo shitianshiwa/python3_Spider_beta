@@ -1,8 +1,10 @@
 # https://best100.animefestival.jp/
 * 2019-12-2星期一
 # 需要安装
-* pip3 install BeautifulSoup4
-* pip3 install selenium==2.53.6
+* python3 -m pip install BeautifulSoup4
+* python3 -m pip install selenium==2.53.6
+* python3 -m pip install html5lib
+* python3 -m pip install apscheduler
 * PhantomJS 
 
 1. 更新当前系统环境(可选)
