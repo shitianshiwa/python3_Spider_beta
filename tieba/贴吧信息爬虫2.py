@@ -1,6 +1,6 @@
 #coding : UTF-8
 '''
-版本0.132(beta)
+版本0.1321(beta)
 后台运行 nohup python3 /root/test/贴吧信息爬虫2.py
 '''
 import os
@@ -11,6 +11,7 @@ import json
 import signal
 import time
 import threading
+import lxml
 #import zlib
 #import hashlib
 #from urllib import request as r
@@ -90,11 +91,11 @@ def get_data(name,browser):
     html_str2='http://tieba.baidu.com/sign/info?kw='+str2+'&ie=utf-8'#贴吧信息api
     html_str3='https://tieba.baidu.com/f?kw='+str2+'&ie=utf-8&tab=good'#贴吧精品区网页
     browser.get(html_str1)    
-    html_tree1 = BeautifulSoup(str(browser.page_source), 'html.parser')
+    html_tree1 = BeautifulSoup(str(browser.page_source), 'lxml')#lxml据说能提高处理网页的效率，所以换换看
     browser.get(html_str2)
     html_tree2 = BeautifulSoup(str(browser.page_source), 'html.parser')
     browser.get(html_str3)
-    html_tree3 = BeautifulSoup(str(browser.page_source), 'html.parser')
+    html_tree3 = BeautifulSoup(str(browser.page_source), 'lxml')
     #备份当时获取到的内容，以备以后需要时查看
     with open( './'+wenjianjia+'/'+'百度贴吧'+name+'吧.html', 'w', encoding='utf-8') as f:
         f.write(str(html_tree1))
