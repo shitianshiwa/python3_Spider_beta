@@ -2,7 +2,8 @@
 https://www.python.org/downloads/release/python-368/
 python3 -m pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
 
-pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
+python3 -m pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
+python3 -m pip install lxml
 PhantomJS（https://github.com/ariya/phantomjs），放在python根目录的Scripts文件夹里
 linux上的安装命令
 介绍

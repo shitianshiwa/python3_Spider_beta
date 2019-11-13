@@ -314,9 +314,10 @@ https://tieba.baidu.com/f?kw=贴吧名
 http://tieba.baidu.com/sign/info?kw=贴吧名
 测试用的是这个版本
 https://www.python.org/downloads/release/python-368/
-pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
+python3 -m pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
 PhantomJS（https://github.com/ariya/phantomjs），放在python根目录的Scripts文件夹里
-pip install beautifulsoup4 https://github.com/DeronW/beautifulsoup
+python3 -m pip install beautifulsoup4 https://github.com/DeronW/beautifulsoup
+python3 -m pip install lxml
 
 Signal翻译过来中文就是信号- -
 当然, 本身他就是Linux系统编程中非常重要的概念, 信号机制是进程之间传递消息的一种机制,
