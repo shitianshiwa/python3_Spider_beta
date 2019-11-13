@@ -3,3 +3,4 @@
 * https://api.bilibili.com/x/relation/stat?vmid=
 # 动画番剧
 * https://api.bilibili.com/pgc/view/web/media?media_id=
+* 在2019-11-13发现这个api新增了该番剧的前三名长评和短评内容
