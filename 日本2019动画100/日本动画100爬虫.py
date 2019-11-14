@@ -106,7 +106,8 @@ def get_data(name, browser):
     temp.append('分割2')
     i = 0
     while(i<len(movie1)):
-        temp.append(str(i+1)+' . '+movie1[i].string)
+        temp.append(str(i+1))#把序号与名字分开到单独的格子里
+        temp.append(movie1[i].string)
         temp.append(movie2[i]['style'].split(':')[1].split('%')[0])
         temp.append('分割2')
         # print(movie1[i].string+','+movie2[i]['style'].split(':')[1].split('%')[0])
