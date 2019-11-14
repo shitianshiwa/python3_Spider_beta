@@ -1,7 +1,7 @@
 # coding : UTF-8
 # html5lib 	BeautifulSoup(markup, "html5lib")
 '''
-版本0.012(beta)
+版本0.013(beta)
 后台运行 nohup python3 /root/test/日本动画100爬虫.py
 新增获取百分比数据项，2019-11-10
 Python 定时任务的实现方式
@@ -89,7 +89,8 @@ def get_data(name, browser):
     temp.append('分割2')
     i = 0
     while(i<len(tv1)):
-        temp.append(str(i+1)+' . '+tv1[i].string)
+        temp.append(str(i+1))#把序号与名字分开到单独的格子里
+        temp.append(tv1[i].string)
         temp.append(tv2[i]['style'].split(':')[1].split('%')[0])
         temp.append('分割2')
         # print(tv1[i].string+','+tv2[i]['style'].split(':')[1].split('%')[0])
