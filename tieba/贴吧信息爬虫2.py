@@ -1,6 +1,6 @@
 #coding : UTF-8
 '''
-版本0.1321(beta)
+版本0.1322(beta)
 后台运行 nohup python3 /root/test/贴吧信息爬虫2.py
 '''
 import os
@@ -11,7 +11,7 @@ import json
 import signal
 import time
 import threading
-import lxml
+#import lxml
 #import zlib
 #import hashlib
 #from urllib import request as r
@@ -25,13 +25,15 @@ tieba={}
 timer=None
 countx = 0
 errorx=0
+browser=None
+
 '''
 def req_maker(path):
     if path:
         req = r.Request(path)
         req.add_header("User-Agent","Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36")
         req.add_header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-        req.add_header("Accept-Encoding", "gzip, deflate, sdch")
+        req.add_header("Accept-Encoding", "gzip, deflate")
         req.add_header("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6")
         req.add_header("Cookie", cookie)
         return req
@@ -91,11 +93,11 @@ def get_data(name,browser):
     html_str2='http://tieba.baidu.com/sign/info?kw='+str2+'&ie=utf-8'#贴吧信息api
     html_str3='https://tieba.baidu.com/f?kw='+str2+'&ie=utf-8&tab=good'#贴吧精品区网页
     browser.get(html_str1)    
-    html_tree1 = BeautifulSoup(str(browser.page_source), 'lxml')#lxml据说能提高处理网页的效率，所以换换看
+    html_tree1 = BeautifulSoup(str(browser.page_source), 'html.parser')#lxml据说能提高处理网页的效率，所以换换看(2019-11-16再换回来看看)
     browser.get(html_str2)
     html_tree2 = BeautifulSoup(str(browser.page_source), 'html.parser')
     browser.get(html_str3)
-    html_tree3 = BeautifulSoup(str(browser.page_source), 'lxml')
+    html_tree3 = BeautifulSoup(str(browser.page_source), 'html.parser')
     #备份当时获取到的内容，以备以后需要时查看
     with open( './'+wenjianjia+'/'+'百度贴吧'+name+'吧.html', 'w', encoding='utf-8') as f:
         f.write(str(html_tree1))
@@ -205,17 +207,25 @@ def start():
     global wenjianjia
     global countx
     global errorx
+    global browser
     try:
         global timer
         #timer.cancel()
-        browser = getSource()
+        if(browser==None):
+            browser = getSource()
+        else:
+            browser.service.process.send_signal(signal.SIGTERM)
+            browser.quit()
+            with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
+                f.write("\n"+str(countx)+'.'+'浏览器卡住了！'+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+            exit()
         #print("2233")
         timeout=3600+random.choice(range(30,60))
         print("延迟："+str(timeout)+"s")
         
         while countx < len(tieba):
             get_data(tieba[countx],browser)
-            time.sleep(2)#延迟
+            time.sleep(random.choice(range(2,6)))#延迟
             countx = countx + 1
         countx = 0
         browser.service.process.send_signal(signal.SIGTERM)#进程终止
@@ -230,7 +240,7 @@ def start():
         #print(str(err))
         with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
             f.write("\n"+str(countx)+'.'+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
-        time.sleep(60)#延迟
+        time.sleep(random.choice(range(60,180)))#延迟
         if(errorx<3):
             errorx=errorx+1
             start()
