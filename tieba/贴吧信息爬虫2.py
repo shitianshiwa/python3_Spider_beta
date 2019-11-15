@@ -321,7 +321,8 @@ if __name__ == '__main__':
 '''
 https://www.cnblogs.com/lizm166/p/8360388.html
 https://tieba.baidu.com/f?kw=贴吧名
-http://tieba.baidu.com/sign/info?kw=贴吧名
+https://tieba.baidu.com/f?kw=贴吧名&ie=utf-8&tab=good
+http://tieba.baidu.com/sign/info?kw=贴吧名&ie=utf-8   贴吧签到人气榜月榜单公布时间：2019年10月30日 23:59？
 测试用的是这个版本
 https://www.python.org/downloads/release/python-368/
 python3 -m pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新）https://github.com/SeleniumHQ/selenium
