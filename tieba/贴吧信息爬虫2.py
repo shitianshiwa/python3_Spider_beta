@@ -217,7 +217,8 @@ def start():
             browser.service.process.send_signal(signal.SIGTERM)
             browser.quit()
             with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
-                f.write("\n"+str(countx)+'.'+'浏览器卡住了！'+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+                f.write("\n"+str(countx)+".浏览器卡住了\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+            print(datetime.now())
             exit()
         #print("2233")
         timeout=3600+random.choice(range(30,60))
@@ -230,6 +231,7 @@ def start():
         countx = 0
         browser.service.process.send_signal(signal.SIGTERM)#进程终止
         browser.quit()
+        browser=None
         print(datetime.now())
         timer = threading.Timer(timeout, start)#一小时=3600s
         timer.start()
@@ -237,6 +239,7 @@ def start():
         if(browser!=None):
             browser.service.process.send_signal(signal.SIGTERM)
             browser.quit()
+            browser=None
         #print(str(err))
         with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
             f.write("\n"+str(countx)+'.'+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
