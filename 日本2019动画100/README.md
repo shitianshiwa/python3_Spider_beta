@@ -1,3 +1,4 @@
+#已结束！
 # https://best100.animefestival.jp/
 * 2019-12-2星期一
 # 需要安装
