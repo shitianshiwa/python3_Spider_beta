@@ -1,0 +1,27 @@
+
+ResultSet object has no attribute 'find_all'. You're probably treating a list of items like a single item. Did you call find_all() when you meant to call find()?
+2019-11-10 06:21:36
+
+ResultSet object has no attribute 'find'. You're probably treating a list of items like a single item. Did you call find_all() when you meant to call find()?
+2019-11-10 06:24:34
+
+ResultSet object has no attribute 'style'. You're probably treating a list of items like a single item. Did you call find_all() when you meant to call find()?
+2019-11-10 06:44:18
+
+ResultSet object has no attribute 'attrs'. You're probably treating a list of items like a single item. Did you call find_all() when you meant to call find()?
+2019-11-10 06:44:50
+
+ResultSet object has no attribute 'attrs'. You're probably treating a list of items like a single item. Did you call find_all() when you meant to call find()?
+2019-11-10 06:47:24
+
+list indices must be integers or slices, not str
+2019-11-10 06:49:13
+
+list indices must be integers or slices, not str
+2019-11-10 06:51:02
+
+too many values to unpack (expected 2)
+2019-11-10 07:04:10
+
+'NoneType' object has no attribute 'find_all'
+2019-12-03 00:00:02
