@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#(beta)0.222
+#(beta)0.2221
 import os
 import threading
 import requests
@@ -10,16 +10,16 @@ import socket
 import http.client
 import json
 import urllib.request
-import B站番剧数据爬虫2
+#import B站番剧数据爬虫2
 from datetime import datetime
 from bs4 import BeautifulSoup
 
 wenjianjia=''
 logname='bilibili_log.txt'
-A=['https://api.bilibili.com/pgc/view/web/media?media_id=139632','https://api.bilibili.com/pgc/view/web/media?media_id=28221404','https://api.bilibili.com/pgc/view/web/media?media_id=4316442']
-B=['邻家索菲','街角魔族','天使降临到我身边']
-C=['B站邻家索菲数据.csv','B站街角魔族数据.csv','天使降临到我身边.csv']
-C2=['B站邻家索菲数据2.csv','B站街角魔族数据2.csv','天使降临到我身边2.csv']
+A=['https://api.bilibili.com/pgc/view/web/media?media_id=139632','https://api.bilibili.com/pgc/view/web/media?media_id=28221404','https://api.bilibili.com/pgc/view/web/media?media_id=4316442','https://api.bilibili.com/pgc/view/web/media?media_id=28224128']
+B=['邻家索菲','街角魔族','天使降临到我身边','恋爱小行星']
+C=['B站邻家索菲数据.csv','B站街角魔族数据.csv','天使降临到我身边.csv','恋爱小行星.csv']
+#C2=['B站邻家索菲数据2.csv','B站街角魔族数据2.csv','天使降临到我身边2.csv','恋爱小行星2.csv']
 timer=None
 
 def get_content(url , data = None):
@@ -69,7 +69,7 @@ def get_data(html_text,name):
     global wenjianjia
     try:
         final = []
-        bs = BeautifulSoup(html_text, "html.parser")  # 创建BeautifulSoup对象
+        bs = BeautifulSoup(html_text, "html.parser")  # 创建BeautifulSoup对象 html.parser
         with open('./'+wenjianjia+'/'+'bilibili_fanju_log.html', 'w', encoding='utf-8') as f:
              f.write(str(bs))
         '''
@@ -85,12 +85,15 @@ def get_data(html_text,name):
         data[0] = data2['result']['stat']['views']#总播放数
         data[1] = data2['result']['stat']['favorites']#追番人数
         data[2] = data2['result']['stat']['danmakus'] #弹幕总数
-        data[3] = data2['result']['rating']['score']#评分
-        data[4] = data2['result']['rating']['count']#评分人数
+        try:
+            data[3] = data2['result']['rating']['score']#评分 未完结的番剧没有这个？
+            data[4] = data2['result']['rating']['count']#评分人数 未完结的番剧没有这个？
+        except Exception as err:
+            print("没有评分")
         temp=[]
         temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         count = 0
-        while count < 5:
+        while count < len(data):
             temp.append(data[count])
             count = count + 1
         #print (count, " 小于 5")
@@ -128,7 +131,7 @@ def start():
         i=i+1
         time.sleep(2)
 
-    B站番剧数据爬虫2.start()
+    #B站番剧数据爬虫2.start()
     timer = threading.Timer(timeout, start)#一小时=3600s
     timer.start()
     
@@ -159,13 +162,14 @@ if __name__ == '__main__':
             f_csv = csv.writer(f)
             f_csv.writerows(final)
         i=i+1
+    '''
     i=0
     while(i<len(C2)):
         with open('./'+wenjianjia+'/'+C2[i], 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
             f_csv = csv.writer(f)
             f_csv.writerows(final)
         i=i+1
-
+    '''
     start()
     #timer = threading.Timer(0, start)
     #timer.start()
