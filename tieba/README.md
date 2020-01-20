@@ -36,24 +36,24 @@ Ubuntu 16.04服务器实例。
 * PhantomJS现在已安装在您的系统上。现在，您可以使用以下命令来验证PhantomJS的安装版本：
 
 * phantomjs --version
-您应该看到以下输出：
+  您应该看到以下输出：
 
-2.1.1
-您还可以从PhantomJS提示符下找到PhantomJS的版本，如下所示：
+  2.1.1
+  您还可以从PhantomJS提示符下找到PhantomJS的版本，如下所示：
 
-phantomjs
-您将收到phantomjs提示：
+  phantomjs
+  您将收到phantomjs提示：
 
-phantomjs>
-现在，运行以下命令以查找版本详细信息：
+  phantomjs>
+  现在，运行以下命令以查找版本详细信息：
 
-phantomjs> phantom.version
-您应该看到以下输出：
+  phantomjs> phantom.version
+  您应该看到以下输出：
 
-{
-   "major": 2,
-   "minor": 1,
-   "patch": 1
-}
-而已。您已在Ubuntu 16.04服务器上成功安装了PhantomJS。
-https://www.vultr.com/docs/how-to-install-phantomjs-on-ubuntu-16-04 
+  {
+     "major": 2,
+     "minor": 1,
+     "patch": 1
+  }
+  而已。您已在Ubuntu 16.04服务器上成功安装了PhantomJS。
+  https://www.vultr.com/docs/how-to-install-phantomjs-on-ubuntu-16-04 
