@@ -15,6 +15,7 @@ https://www.python.org/ftp/python/3.7.3/
 * python3 -m pip install --upgrade pip(推荐)
 * pip3 install --upgrade pip
 # 安装模块失败的解决方法
+* https://github.com/Tsuk1ko/CQ-picfinder-robot/issues/42#issuecomment-572051285
 ## 1
 * https://npm.taobao.org/
 * npm config set registry https://registry.npm.taobao.org
