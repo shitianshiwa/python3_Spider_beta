@@ -3,7 +3,7 @@
 * python3 -m pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新） 
 * https://github.com/SeleniumHQ/selenium
 * python3 -m pip install lxml
-* PhantomJS（https://github.com/ariya/phantomjs），放在python根目录的Scripts文件夹里
+* PhantomJS（https://github.com/ariya/phantomjs） ，放在python根目录的Scripts文件夹里
 # linux上的安装命令
  介绍
  PhantomJS是一种脚本化的无头浏览器，可用于自动执行网页交互。PhantomJS是免费的开放源代码，并根据BSD许可进行分发。PhantomJS基于WebKit，与Safari和    Google Chrome浏览器非常相似。PhantomJS JavaScript API可用于打开网页，执行用户操作和截屏。
