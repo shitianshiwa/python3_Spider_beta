@@ -1,6 +1,6 @@
 # -*-coding:utf-8 -*-
 '''
-(beta)0.742
+(beta)0.743
 后台运行 nohup python3 /root/test/up主数据爬虫.py &
 显示所有进程 ps aux
 杀死进程 PID（数字）
@@ -32,8 +32,11 @@ dizhi = ['https://api.bilibili.com/x/relation/stat?vmid=349991143',
          'https://api.bilibili.com/x/relation/stat?vmid=375504219',
          'https://api.bilibili.com/x/relation/stat?vmid=1473830',
          'https://api.bilibili.com/x/relation/stat?vmid=12434430',
-         'https://api.bilibili.com/x/relation/stat?vmid=386900246']
-mingzi = ['mea', 'aqua', 'AIChannel', 'ltt', '七奈']
+         'https://api.bilibili.com/x/relation/stat?vmid=386900246',
+         'https://api.bilibili.com/x/relation/stat?vmid=9034870',
+         'https://api.bilibili.com/x/relation/stat?vmid=387636363',
+         'https://api.bilibili.com/x/relation/stat?vmid=12362451']
+mingzi = ['mea', 'aqua', 'AIChannel', 'ltt', '七奈','星街','lulu','犬山']
 
 # logname='mea_log.txt'
 # global b#全局变量
@@ -164,9 +167,11 @@ if __name__ == '__main__':
     final.append(temp)
     i=0
     while(i < len(mingzi)):
-        with open('./'+wenjianjia+'/'+mingzi[i]+'.csv', 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
-            f_csv = csv.writer(f)
-            f_csv.writerows(final)
+        temp2='./'+wenjianjia+'/'+mingzi[i]+'.csv'
+        if os.path.exists(temp2)==False:
+            with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+                f_csv = csv.writer(f)
+                f_csv.writerows(final)
         i = i+1
     init()
     #timer = threading.Timer(0,init)

@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#(beta)0.2221
+#(beta)0.2222
 import os
 import threading
 import requests
@@ -16,9 +16,14 @@ from bs4 import BeautifulSoup
 
 wenjianjia=''
 logname='bilibili_log.txt'
-A=['https://api.bilibili.com/pgc/view/web/media?media_id=139632','https://api.bilibili.com/pgc/view/web/media?media_id=28221404','https://api.bilibili.com/pgc/view/web/media?media_id=4316442','https://api.bilibili.com/pgc/view/web/media?media_id=28224128']
-B=['邻家索菲','街角魔族','天使降临到我身边','恋爱小行星']
-C=['B站邻家索菲数据.csv','B站街角魔族数据.csv','天使降临到我身边.csv','恋爱小行星.csv']
+A=['https://api.bilibili.com/pgc/view/web/media?media_id=139632',
+   'https://api.bilibili.com/pgc/view/web/media?media_id=28221404',
+   'https://api.bilibili.com/pgc/view/web/media?media_id=4316442',
+   'https://api.bilibili.com/pgc/view/web/media?media_id=28224128',
+   'https://api.bilibili.com/pgc/view/web/media?media_id=28224137',
+   'https://api.bilibili.com/pgc/view/web/media?media_id=28223817']
+#B=['邻家索菲','街角魔族','天使降临到我身边','恋爱小行星','因为太怕痛就全点防御力了','魔法少女小圆外传']
+C=['B站邻家索菲数据','B站街角魔族数据','天使降临到我身边','恋爱小行星','因为太怕痛就全点防御力了','魔法少女小圆外传']
 #C2=['B站邻家索菲数据2.csv','B站街角魔族数据2.csv','天使降临到我身边2.csv','恋爱小行星2.csv']
 timer=None
 
@@ -86,8 +91,8 @@ def get_data(html_text,name):
         data[1] = data2['result']['stat']['favorites']#追番人数
         data[2] = data2['result']['stat']['danmakus'] #弹幕总数
         try:
-            data[3] = data2['result']['rating']['score']#评分 未完结的番剧没有这个？
-            data[4] = data2['result']['rating']['count']#评分人数 未完结的番剧没有这个？
+            data[3] = data2['result']['rating']['score']#评分 刚播放的番剧没有这个？
+            data[4] = data2['result']['rating']['count']#评分人数 刚播放的番剧没有这个？
         except Exception as err:
             print("没有评分")
         temp=[]
@@ -126,8 +131,8 @@ def start():
     i=0
     while(i<len(C)):
         html = get_content(A[i])
-        result = get_data(html,B[i])
-        write_data(result,'./'+wenjianjia+'/'+C[i])
+        result = get_data(html,C[i])
+        write_data(result,'./'+wenjianjia+'/'+C[i]+'.csv')
         i=i+1
         time.sleep(2)
 
@@ -141,7 +146,7 @@ def start():
     
     #with open( 'bilibili.html', 'w', encoding='utf-8') as f:
          #f.write(str(result))
-    
+
 if __name__ == '__main__':
     wenjianjia='B站番剧数据爬虫'
     try:
@@ -158,9 +163,11 @@ if __name__ == '__main__':
     final.append(temp)
     i=0
     while(i<len(C)):
-        with open('./'+wenjianjia+'/'+C[i], 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
-            f_csv = csv.writer(f)
-            f_csv.writerows(final)
+        temp2='./'+wenjianjia+'/'+C[i]+'.csv'
+        if os.path.exists(temp2)==False:
+             with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+                f_csv = csv.writer(f)
+                f_csv.writerows(final)
         i=i+1
     '''
     i=0
@@ -219,4 +226,42 @@ if __name__ == '__main__':
 28620人评
 2019年1月8日开播 已完结, 全13话
 简介：怕生的御宅族女大学生宫子，遇到了天使般的小学生！？在看到妹妹带来的新朋友小花的瞬间，宫子就无法抑制住心跳！！她为了和小花成为朋友而奋斗，但……“想要和超绝可爱的她做朋友”系小品喜剧，开幕！
+'''
+'''
+Python3 判断文件和文件夹是否存在、创建文件夹 - 整合侠 - 博客园
+https://www.cnblogs.com/lizm166/p/9675165.html
+创建文件：
+1) os.mknod(“test.txt”) 创建空文件 
+2) open(“test.txt”,w) 直接打开一个文件，如果文件不存在则创建文件
+
+创建目录：
+os.mkdir(“file”) 创建目录
+
+复制文件：
+shutil.copyfile(“oldfile”,”newfile”) oldfile和newfile都只能是文件 
+shutil.copy(“oldfile”,”newfile”) oldfile只能是文件夹，newfile可以是文件，也可以是目标目录
+
+复制文件夹：
+shutil.copytree(“olddir”,”newdir”) olddir和newdir都只能是目录，且newdir必须不存在
+
+重命名文件（目录）
+os.rename(“oldname”,”newname”) 文件或目录都是使用这条命令
+
+移动文件（目录）
+shutil.move(“oldpos”,”newpos”)
+
+删除文件
+os.remove(“file”)
+
+删除目录
+os.rmdir(“dir”) 只能删除空目录 
+shutil.rmtree(“dir”) 空目录、有内容的目录都可以删
+
+转换目录
+os.chdir(“path”) 换路径
+
+判断目标
+os.path.exists(“goal”) 判断目标是否存在 
+os.path.isdir(“goal”) 判断目标是否目录 
+os.path.isfile(“goal”) 判断目标是否文件
 '''

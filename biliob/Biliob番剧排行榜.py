@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#beta0.111
+#beta0.112
 #import urllib
 #from urllib import request as r
 #repr = r.urlopen("http://www.baidu.com")
@@ -148,7 +148,9 @@ if __name__ == '__main__':
     temp.append('评论')
     temp.append('弹幕')
     final.append(temp)
-    write_data(final, './'+wenjianjia+'/Bilob.csv')
+    temp2='./'+wenjianjia+'/Bilob.csv'
+    if os.path.exists(temp2)==False:
+        write_data(final,temp2)
     start()
     #timer = threading.Timer(0, start)
     #timer.start()

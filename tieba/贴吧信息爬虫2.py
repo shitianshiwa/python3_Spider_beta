@@ -1,6 +1,6 @@
 #coding : UTF-8
 '''
-版本0.1322(beta)
+版本0.1323(beta)
 后台运行 nohup python3 /root/test/贴吧信息爬虫2.py
 '''
 import os
@@ -279,9 +279,11 @@ if __name__ == '__main__':
     final.append(temp)
     count = 0
     while count < len(tieba):
-        with open('./'+wenjianjia+'/'+'百度贴吧'+tieba[count]+'吧.csv', 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
-            f_csv = csv.writer(f)
-            f_csv.writerows(final)
+        temp2='./'+wenjianjia+'/'+'百度贴吧'+tieba[count]+'吧.csv'
+        if os.path.exists(temp2)==False:
+            with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+                f_csv = csv.writer(f)
+                f_csv.writerows(final)
         count = count + 1
     start()
     #timer = threading.Timer(0, start)
