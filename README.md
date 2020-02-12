@@ -14,21 +14,6 @@ https://www.python.org/ftp/python/3.7.3/
 ## 可选（更新pip用）
 * python3 -m pip install --upgrade pip(推荐)
 * pip3 install --upgrade pip
-# 安装模块失败的解决方法
-* https://github.com/Tsuk1ko/CQ-picfinder-robot/issues/42#issuecomment-572051285
-## 1
-* https://npm.taobao.org/
-* npm config set registry https://registry.npm.taobao.org
-* npm config get registry
-## 2
-单纯挂的系统代理是没用的，因为命令行并不走系统代理，你需要用 sstap 之类的工具代理，或者尝试按下面的方法为 npm 设置代理
-以本地端口为1080的小飞机为例
-* npm config set proxy http://127.0.0.1:1080
-* npm config set https-proxy http://127.0.0.1:1080
-# 如果要取消
-* npm config delete proxy
-* npm config delete https-proxy
-
 
 # 注意
 * 可能存在无法访问到链接的错误，暂时没有方法解决
