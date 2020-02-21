@@ -31,7 +31,7 @@ Ubuntu 16.04服务器实例。
 * sudo tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2 -C /usr/local/share/
 接下来，创建PhantomJS二进制文件到系统bin目录的符号链接：
 
-* sudo ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin/
+* sudo ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs   /usr/local/bin/
 # 步骤3：验证PhantomJS
 * PhantomJS现在已安装在您的系统上。现在，您可以使用以下命令来验证PhantomJS的安装版本：
 
