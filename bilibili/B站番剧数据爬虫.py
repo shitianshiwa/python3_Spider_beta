@@ -27,6 +27,7 @@ C=['B站邻家索菲数据','B站街角魔族数据','天使降临到我身边',
 #C2=['B站邻家索菲数据2.csv','B站街角魔族数据2.csv','天使降临到我身边2.csv','恋爱小行星2.csv']
 timer=None
 
+# https://blog.csdn.net/Bo_wen_/article/details/50868339 python 网络爬虫入门（一）———第一个python爬虫实例
 def get_content(url , data = None):
     header={
         'Accept': 'application/json, text/plain, */*',
