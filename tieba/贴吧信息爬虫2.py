@@ -1,7 +1,7 @@
 #coding : UTF-8
 '''
-版本0.1323(beta)
-后台运行 nohup python3 /root/test/贴吧信息爬虫2.py
+版本0.1330(beta)
+linux系统后台运行 nohup python3 /root/test/贴吧信息爬虫2.py
 '''
 import os
 import csv
@@ -11,28 +11,103 @@ import json
 import signal
 import time
 import threading
+#import logging  # 引入logging模块
 #import lxml
-#import zlib
+import zlib
 #import hashlib
-#from urllib import request as r
+import socket
+from socket import error as SocketError
+from urllib import request as r
 from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities#获取浏览器日志 
+'''
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+ 
+caps = DesiredCapabilities.CHROME
+caps['loggingPrefs'] = {'performance': 'ALL'}
+driver = webdriver.Chrome(desired_capabilities=caps)
+driver.get("your url")
+logs = [json.loads(log['message'])['message']['params'] for log in driver.get_log('performance')]
+#获取request请求信息
+for log in logs:
+    if 'request' in log:
+        requestUrl = log['request']['url']
+ 
+driver.quit()
+使用selenium.webdriver.common.desired_capabilities获取浏览器日志 - miss_林 - 博客园
+https://www.cnblogs.com/misslin/p/10234915.html
+'''
+from selenium.webdriver.support.wait import WebDriverWait#显示等待:WebDriverWait() WebDriverWait(driver,timeout,poll_frequency=0.5,ignored_exceptions=None)
+from selenium.webdriver.common.by import By#从selenium.webdriver.common.by 导入By包进行元素定位
+'''
+By是selenium中内置的一个class，在这个class中有各种方法来定位元素
+
+By所支持的定位器的分类：
+
+CLASS_NAME = 'class name'
+CSS_SELECTOR = 'css selector'
+ID = 'id'
+LINK_TEXT = 'link text'
+NAME = 'name'
+PARTIAL_LINK_TEXT = 'partial link text'
+TAG_NAME = 'tag name'
+XPATH = 'xpath'
+主要应用于一个过滤器，而webdriver的方法是一个定位器。
+
+例如：
+
+ # 用户名输入框
+ username_Input = (By.ID, 'username')
+ # 密码输入框
+ pwd_Input = (By.ID, 'password')
+ # 登录按钮
+ login_btn = (By.TAG_NAME, 'button')
+ # 首页的“新建投放计划”按钮
+
+————————————————
+版权声明：本文为CSDN博主「白清羽」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/gufenchen/java/article/details/98056959
+'''
+from selenium.webdriver.support import expected_conditions as EC#判断一个元素是否存在，如何判断alert弹窗出来了，如何判断动态的元素等等一系列的判断，在selenium的expected_conditions模块收集了一系列的场景判断方法，
+'''
+selenium之等待页面（或者特定元素）加载完成_Python_weixin_42081389的博客-CSDN博客
+https://blog.csdn.net/weixin_42081389/article/details/98486562
+from selenium.webdriver.support.ui import WebDriverWait
+selenium.webdriver.support.ui 和selenium.webdriver.support.wait的区别
+原创爬虫王者 最后发布于2019-04-25 08:47:03 阅读数 780  收藏
+展开
+网上搜了很久，没有找到合适答案。
+
+我们知道，selenium.webdriver.support.ui 和selenium.webdriver.support.wait都是用来做显式等待的，但两者有什么区别呢？
+
+进入selenium的官方文档https://seleniumhq.github.io/selenium/docs/api/py/api.html可以发现，里面并没有出现selenium.webdriver.support.ui，所以判断是ui换成了wait，这样更直接易懂。也就是说二者没有区别！
+
+所以，我们用selenium.webdriver.support.wait就好啦！
+————————————————
+版权声明：本文为CSDN博主「爬虫王者」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_39498924/java/article/details/89499590
+'''
+#检测超时需要的模块
+#PhantomJS   都能用
+#Firefox  都能用
+import selenium.common.exceptions
+socket.setdefaulttimeout(random.choice(range(80, 180)))# 这里对整个socket层设置超时时间。后续文件中如果再使用到socket，不必再设置
 
 wenjianjia=''
-tieba={}
+tieba=None
 timer=None
 countx = 0
 errorx=0
 browser=None
+#weiwancheng=False
 
-'''
 def req_maker(path):
     if path:
         req = r.Request(path)
         req.add_header("User-Agent","Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36")
-        req.add_header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+        req.add_header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
         req.add_header("Accept-Encoding", "gzip, deflate")
         req.add_header("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6")
         req.add_header("Cookie", cookie)
@@ -49,17 +124,19 @@ def get_response_str(req):
 
 def get_now_str():
     return int(float(time.time()) * 1000)
-    
+
+'''
 Python下Selenium PhantomJs设置header的方法
 2018年04月07日 11:58:00 weixin_33857679 阅读数 16
 https://blog.csdn.net/weixin_33857679/article/details/92267975
 '''
 def getSource():
     headers = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         'Content-Encoding': 'gzip,deflate,br',
-        'Content-Type': 'text/html; charset=utf-8',
-        'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
+        #'Content-Type': 'text/html; charset=utf-8',
+        'Accept-Language':'zh-CN,zh;q=0.8,en;q=0.6',
+        'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0',
         'Cookie':''  
     }
     #使用copy()防止修改原代码定义dict
@@ -70,8 +147,21 @@ def getSource():
  
     # 不载入图片，爬页面速度会快很多
     cap["phantomjs.page.settings.loadImages"] = False
- 
-    driver = webdriver.PhantomJS(desired_capabilities=cap)#注意selenium的版本，高版本才支持chromedriver.exe.这里selenium==2.53.6
+    service_args=[]
+    service_args.append('--load-images=no')  ##关闭图片加载
+    #service_args.append('--disk-cache=yes')  ##开启缓存
+    service_args.append('--ignore-ssl-errors=true') ##忽略https错误
+    '''
+    版权声明：本文为CSDN博主「老司儿」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+    原文链接：https://blog.csdn.net/ll641058431/java/article/details/79725136
+    '''
+    driver = webdriver.PhantomJS(desired_capabilities=cap,service_args=service_args)#注意selenium的版本，高版本才支持chromedriver.exe.这里selenium==2.53.6
+    driver.set_page_load_timeout(60)  # 设置页面最长加载时间为5s
+    driver.set_script_timeout(60)     #这两种设置都进行才有效
+    '''
+    selenium 超时问题解决
+    http://blog.leanote.com/post/boom/selenium-%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3
+    '''
     return driver
 
 def get_data(name,browser):
@@ -83,21 +173,59 @@ def get_data(name,browser):
     html_str1=None
     html_str2=None
     html_str3=None
-    '''
-    html_str1 = get_response_str(req_maker('https://tieba.baidu.com/f?kw='+str2))
-    html_str2 = get_response_str(req_maker('http://tieba.baidu.com/sign/info?kw='+str2+'&ie=utf-8'))
-    html_tree1=BeautifulSoup(html_str1, 'html.parser')
-    html_tree2=BeautifulSoup(html_str2, 'html.parser')
-    '''
     html_str1='https://tieba.baidu.com/f?kw='+str2#直接获取贴吧主页的网页必须把中文转utf-8在连进去
     html_str2='http://tieba.baidu.com/sign/info?kw='+str2+'&ie=utf-8'#贴吧信息api
     html_str3='https://tieba.baidu.com/f?kw='+str2+'&ie=utf-8&tab=good'#贴吧精品区网页
-    browser.get(html_str1)    
-    html_tree1 = BeautifulSoup(str(browser.page_source), 'html.parser')#lxml据说能提高处理网页的效率，所以换换看(2019-11-16再换回来看看)
-    browser.get(html_str2)
-    html_tree2 = BeautifulSoup(str(browser.page_source), 'html.parser')
-    browser.get(html_str3)
-    html_tree3 = BeautifulSoup(str(browser.page_source), 'html.parser')
+    try:
+        '''
+        html_str1 = get_response_str(req_maker('https://tieba.baidu.com/f?kw='+str2))
+        html_tree1=BeautifulSoup(html_str1, 'html.parser')
+        '''
+        browser.get(html_str1)
+        #time.sleep(2)#有时候会没加载完内容，所以弄个2秒延时 
+        element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
+        # 此处注意，如果省略message=“”，则By.ID外面是两层()
+        '''
+        方法	说明
+        title_is	判断当前页面的 title 是否完全等于（==）预期字符串，返回布尔值
+        title_contains	判断当前页面的 title 是否包含预期字符串，返回布尔值
+        presence_of_element_located	判断某个元素是否被加到了 dom 树里，并不代表该元素一定可见
+        visibility_of_element_located	判断元素是否可见（可见代表元素非隐藏，并且元素宽和高都不等于 0）
+        visibility_of	同上一方法，只是上一方法参数为locator，这个方法参数是 定位后的元素
+        presence_of_all_elements_located	判断是否至少有 1 个元素存在于 dom 树中。举例：如果页面上有 n 个元素的 class 都是’wp’，那么只要有 1 个元素存在，这个方法就返回 True
+        text_to_be_present_in_element	判断某个元素中的 text 是否 包含 了预期的字符串
+        text_to_be_present_in_element_value	判断某个元素中的 value 属性是否包含 了预期的字符串
+        frame_to_be_available_and_switch_to_it	判断该 frame 是否可以 switch进去，如果可以的话，返回 True 并且 switch 进去，否则返回 False
+        invisibility_of_element_located	判断某个元素中是否不存在于dom树或不可见
+        element_to_be_clickable	判断某个元素中是否可见并且可点击
+        staleness_of	等某个元素从 dom 树中移除，注意，这个方法也是返回 True或 False
+        element_to_be_selected	判断某个元素是否被选中了,一般用在下拉列表
+        element_selection_state_to_be	判断某个元素的选中状态是否符合预期
+        element_located_selection_state_to_be	跟上面的方法作用一样，只是上面的方法传入定位到的 element，而这个方法传入 locator
+        alert_is_present	判断页面上是否存在 alert
+        ————————————————
+        版权声明：本文为CSDN博主「腰椎间盘没你突出」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+        原文链接：https://blog.csdn.net/sinat_41774836/java/article/details/88965281
+        '''
+        html_tree1 = BeautifulSoup(str(browser.page_source), 'html.parser')#lxml据说能提高处理网页的效率，所以换换看(2019-11-16再换回来看看)
+        #browser.get(html_str2)
+        #time.sleep(2)#有时候会没加载完内容，所以弄个2秒延时
+        #element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
+        html_str22 = get_response_str(req_maker(html_str2))
+        html_tree2=BeautifulSoup(str(html_str22), 'html.parser')
+        #html_tree2 = BeautifulSoup(str(browser.page_source), 'html.parser')
+        
+        browser.get(html_str3)
+        #time.sleep(2)#有时候会没加载完内容，所以弄个2秒延时        
+        element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
+        html_tree3 = BeautifulSoup(str(browser.page_source), 'html.parser')
+    except selenium.common.exceptions.TimeoutException as err:
+        print("捕捉到请求超时错误"+str(err))
+        return False
+    except SocketError as e:
+        print("SocketError"+str(datetime.now())+str(e))
+        return False
+    #browser.close()#不能用
     #备份当时获取到的内容，以备以后需要时查看
     with open( './'+wenjianjia+'/'+'百度贴吧'+name+'吧.html', 'w', encoding='utf-8') as f:
         f.write(str(html_tree1))
@@ -118,16 +246,21 @@ def get_data(name,browser):
         
     #----------------------------
     #api
-    body = html_tree2.body # 获取body部分
-    body=str(body).split("<body>")[1].split("</body>")[0]
+    #body = html_tree2.body # 获取body部分
+    #print(html_tree2)
+    #body=str(body).split("<body>")[1].split("</body>")[0]
     #print(body)
-    data2 = json.loads(str(body))
+    data2 = json.loads(str(html_tree2))
     data3 = str(data2).replace("'",'"')
     data3 = str(data3).replace("True",'true')
     data3 = str(data3).replace("False",'false')#解决处理转换成json后，保存文件后json格式出错
     #print(data3)
     #网页
-    body=str(html_tree1).split('<div class="th_footer_l">')[1].split('</div>')[0]#主题贴数，贴子总数，关注人数，
+    try:
+        body=str(html_tree1).split('<div class="th_footer_l">')[1].split('</div>')[0]#主题贴数，贴子总数，关注人数，
+    except Exception as err:
+        print(err)
+        return False
     html_tree4 = BeautifulSoup(body, 'html.parser')
     #----------------------------
     '''
@@ -161,31 +294,60 @@ def get_data(name,browser):
     data4={}
     data4[0]=name#贴吧名
     data4[1]=data2['data']['forum_info']['forum_info']['forum_id']              #这个贴吧的id号
-    data4[2]=data2['data']['forum_info']['level_1_dir_name']                    #贴吧目录1
-    data4[3]=data2['data']['forum_info']['level_2_dir_name']                    #贴吧目录2
+    try:
+        data4[2]=data2['data']['forum_info']['level_1_dir_name']                    #贴吧目录1
+        data4[3]=data2['data']['forum_info']['level_2_dir_name']                    #贴吧目录2
+    except (IndexError, KeyError) as err:
+        print("贴吧目录错误："+str(err))
+        data4[2]="无"                   #贴吧目录1
+        data4[3]="无"                   #贴吧目录2
+    '''
+    https://www.jianshu.com/p/65aece7b8d78
+    python-14-json文件与异常捕获
+    '''
     #贴吧信息  
-    data4[4]=html_tree4.find_all('span')[2].string                              #当日关注人数(网页端)
     data4[5]=data2['data']['forum_info']['current_rank_info']['member_count']   #当日关注人数（api端）
-    data4[6]=html_tree4.find_all('span')[0].string                              #当日主题贴数(网页端)
-    data4[7]=html_tree4.find_all('span')[1].string                              #当日贴子总数(网页端)
-    data4[8]=str(html_tree3).split('<div class="th_footer_l">')[1].split('</div>')[0].split('<span class="red_text">')[1].split('</span>')[0]#精品贴总数
-    data4[9]=html_tree4.find_all('a')[0].string                                 #会员名字(网页端)
+    try:
+        data4[4]=html_tree4.find_all('span')[2].string                              #当日关注人数(网页端)
+        data4[6]=html_tree4.find_all('span')[0].string                              #当日主题贴数(网页端)
+        data4[7]=html_tree4.find_all('span')[1].string                              #当日贴子总数(网页端)
+        data4[8]=str(html_tree3).split('<div class="th_footer_l">')[1].split('</div>')[0].split('<span class="red_text">')[1].split('</span>')[0]#精品贴总数
+        data4[9]=html_tree4.find_all('a')[0].string                                 #会员名字(网页端)
+    except Exception as err:
+        print(err)
+        return False
     #当日
     data4[10]=data2['data']['forum_info']['current_rank_info']['sign_count']     #当日签到人数
-    data4[11]=data2['data']['forum_info']['current_rank_info']['sign_rank']     #当日签到排名
-    #昨日
-    data4[12]=data2['data']['forum_info']['yesterday_rank_info']['member_count']#昨天关注人数
-    data4[13]=data2['data']['forum_info']['yesterday_rank_info']['sign_count']  #昨天签到人数
-    data4[14]=data2['data']['forum_info']['yesterday_rank_info']['sign_rank']   #昨天签到排名
-    #每周
-    data4[15]=data2['data']['forum_info']['weekly_rank_info']['member_count']   #周均关注人数
-    data4[16]=data2['data']['forum_info']['weekly_rank_info']['sign_count']     #周均签到人数
-    data4[17]=data2['data']['forum_info']['weekly_rank_info']['sign_rank']      #周均签到排名
-    #每月
-    data4[18]=data2['data']['forum_info']['monthly_rank_info']['member_count']  #月均关注人数
-    data4[19]=data2['data']['forum_info']['monthly_rank_info']['sign_count']    #月均签到人数
-    data4[20]=data2['data']['forum_info']['monthly_rank_info']['sign_rank']     #月均签到排名
-
+    try:
+        data4[11]=data2['data']['forum_info']['current_rank_info']['sign_rank']     #当日签到排名
+        #昨日
+        data4[12]=data2['data']['forum_info']['yesterday_rank_info']['member_count']#昨天关注人数
+        data4[13]=data2['data']['forum_info']['yesterday_rank_info']['sign_count']  #昨天签到人数
+        data4[14]=data2['data']['forum_info']['yesterday_rank_info']['sign_rank']   #昨天签到排名
+        #每周
+        data4[15]=data2['data']['forum_info']['weekly_rank_info']['member_count']   #周均关注人数
+        data4[16]=data2['data']['forum_info']['weekly_rank_info']['sign_count']     #周均签到人数
+        data4[17]=data2['data']['forum_info']['weekly_rank_info']['sign_rank']      #周均签到排名
+        #每月
+        data4[18]=data2['data']['forum_info']['monthly_rank_info']['member_count']  #月均关注人数
+        data4[19]=data2['data']['forum_info']['monthly_rank_info']['sign_count']    #月均签到人数
+        data4[20]=data2['data']['forum_info']['monthly_rank_info']['sign_rank']     #月均签到排名
+    except (IndexError, KeyError) as err:
+        print("贴吧关注+签到+签到排名错误："+str(err))
+        data4[11]=0 #当日签到排名
+        #昨日
+        data4[12]=0#昨天关注人数
+        data4[13]=0#昨天签到人数
+        data4[14]=0#昨天签到排名
+        #每周
+        data4[15]=0#周均关注人数
+        data4[16]=0#周均签到人数
+        data4[17]=0#周均签到排名
+        #每月
+        data4[18]=0#月均关注人数
+        data4[19]=0#月均签到人数
+        data4[20]=0#月均签到排名
+ 
     temp=[]
     temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     count = 0
@@ -196,6 +358,7 @@ def get_data(name,browser):
     final.append(temp)
         
     write_data(final, './'+wenjianjia+'/'+'百度贴吧'+name+'吧.csv')
+    return True
 
 def write_data(data, name):
     file_name = name
@@ -203,103 +366,184 @@ def write_data(data, name):
             f_csv = csv.writer(f)
             f_csv.writerows(data)
 
+def usejson():
+    # 读取JSON配置文件
+    #global weiwancheng
+    filename = "./tieba.json"
+    jsontemp = None
+    f_obj = None
+    temp=[]
+    try:
+        f_obj = open(filename, encoding="utf-8")
+        jsontemp = json.load(f_obj)
+        f_obj.close()
+    except Exception as err:  # FileExistsError or OSError:
+        print("读取配置文件失败！ "+str(err))
+        #f_obj.close()
+        exit()
+    temp.append(jsontemp['tieba'])
+    temp.append(jsontemp['paqucd'])
+    return temp
+    '''
+    for x in tiezilists:
+        if x[2] == True:
+            time.sleep(random.choice(range(10, 20)))
+            print('链接:'+x[0]+',标题'+x[1])
+            start(x[0])
+        else:
+            print('链接:'+x[0]+',标题'+str(x[1])+","+str(x[2])+",该贴不更新！\n")
+
+    print("完成运行！"+str(datetime.now()))
+    logger.info("完成运行！"+str(datetime.now()));
+
+    https://www.cnblogs.com/lpdeboke/p/11414254.html
+    python中json的基本使用
+    https://jingyan.baidu.com/article/c74d6000d138fb0f6b595d45.html
+    如何使用python的json模块从json文件读取数据听语音
+    https://blog.csdn.net/weixin_41931602/article/details/80557416
+    python ： 'gbk' codec can't decode byte 0xbe in position 18: illegal multibyte sequenc
+    '''
+
 def start():
     global wenjianjia
     global countx
     global errorx
     global browser
-    try:
-        global timer
-        #timer.cancel()
-        if(browser==None):
-            browser = getSource()
-        else:
-            browser.service.process.send_signal(signal.SIGTERM)
-            browser.quit()
-            with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
-                f.write("\n"+str(countx)+".浏览器卡住了\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
-            print(datetime.now())
-            exit()
-        #print("2233")
-        timeout=3600+random.choice(range(30,60))
-        print("延迟："+str(timeout)+"s")
-        
-        while countx < len(tieba):
-            get_data(tieba[countx],browser)
-            time.sleep(random.choice(range(2,6)))#延迟
-            countx = countx + 1
-        countx = 0
-        browser.service.process.send_signal(signal.SIGTERM)#进程终止
-        browser.quit()
-        browser=None
-        print(datetime.now())
-        timer = threading.Timer(timeout, start)#一小时=3600s
-        timer.start()
-    except Exception as err:
-        if(browser!=None):
-            browser.service.process.send_signal(signal.SIGTERM)
-            browser.quit()
-            browser=None
-        #print(str(err))
-        with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
-            f.write("\n"+str(countx)+'.'+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
-        time.sleep(random.choice(range(60,180)))#延迟
-        if(errorx<3):
-            errorx=errorx+1
-            start()
-        print(datetime.now())
-        exit()
-    finally:
-        errorx=0
-        print(datetime.now())
-        
-    #with open( '百度贴吧邻家索菲吧.csv', 'w', encoding='utf-8') as f:
-         #f.write(str(result))
-    
-if __name__ == '__main__':
-    cookie = ""
+    global timer
     final=[]
     temp=[]
-    Tieba=["邻家的吸血鬼小妹","邻家索菲","魔兽地图编辑器","天使降临到我身边","天使降临到了我身边","vtuber","台风","东方","战争雷霆","舰队collection","街角魔族"]#11个
     Temp =['时间','贴吧名','贴吧id','贴吧目录1','贴吧目录2','当日即时关注人数(网页获取)','当日关注人数(api获取)','当日即时主题贴数','当日即时贴子总数','当日即时精品贴总数','贴吧会员名','当日即时签到人数','当日即时签到排名',
            '昨日关注人数','昨日签到人数','昨日签到排名','每周关注人数','每周签到人数','每周签到排名','每月关注人数','每月签到人数','每月签到排名']#22个
-    wenjianjia='贴吧信息记录'
-    try:
-        os.makedirs(wenjianjia)
-    except Exception as err:#FileExistsError or OSError:
-        print(str(err))
+    #global weiwancheng
+    #timer.cancel()
+    print(str(datetime.now())+",start")
+    #print("2233")
     count = 0
-    while count < len(Tieba):
-        tieba[count] = Tieba[count]
-        count = count + 1
-    count = 0
+    tieba=usejson()
     while count < len(Temp):
         temp.append(Temp[count])
         count = count + 1
     final.append(temp)
     count = 0
-    while count < len(tieba):
-        temp2='./'+wenjianjia+'/'+'百度贴吧'+tieba[count]+'吧.csv'
+    while count < len(tieba[0]):
+        temp2='./'+wenjianjia+'/'+'百度贴吧'+tieba[0][count]+'吧.csv'
         if os.path.exists(temp2)==False:
             with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
                 f_csv = csv.writer(f)
                 f_csv.writerows(final)
         count = count + 1
+
+    timeout=tieba[1]+random.choice(range(30,60))
+    chongshi=0
+    '''
+    #没有以下的情况存在，一定是执行完本次，才开启下一次轮回
+    if weiwancheng==True:
+        if(errorx<2):
+            print("上次爬虫还没执行完，等下一次继续")
+            timer = threading.Timer(timeout, start)#一小时=3600s
+            timer.start()
+            return
+        else:
+            print("第二次尝试，发现上一次爬虫仍未完成，无法继续爬虫！")
+            exit()
+        errorx=errorx+1
+    weiwancheng=True
+    '''
+    while countx < len(tieba[0]):
+        if chongshi>5:
+            print("连续重试超过2次，关闭爬虫！")
+            exit()
+        if(browser==None):
+            browser = getSource()
+        else:
+            browser.service.process.send_signal(signal.SIGTERM)
+            browser.quit()
+            browser=None
+            with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
+                f.write("\n"+str(countx)+".浏览器卡住了\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+            print(datetime.now())
+            exit()
+        if get_data(tieba[0][countx],browser)==True:
+            countx = countx + 1
+            chongshi=0
+        else:
+            print("重试"+str(chongshi+1)+"次")
+            chongshi=chongshi+1
+        browser.close()
+        browser.service.process.send_signal(signal.SIGTERM)
+        browser.quit()
+        browser=None
+        time.sleep(random.choice(range(8,10)))#延迟
+    countx = 0
+    #weiwancheng=False
+    print(str(datetime.now())+",end")
+    print("延迟："+str(timeout)+"s后，再次爬取")
+    timer = threading.Timer(timeout, start)#一小时=3600s
+    timer.start()
+        
+    #with open( '百度贴吧邻家索菲吧.csv', 'w', encoding='utf-8') as f:
+         #f.write(str(result))
+'''
+        try:
+        except Exception as err:
+            if(browser!=None):
+                browser.service.process.send_signal(signal.SIGTERM)
+                browser.quit()
+                browser=None
+            #print(str(err))
+            with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
+                f.write("\n"+str(countx)+'.'+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+            time.sleep(random.choice(range(60,180)))#延迟
+            if(errorx<3):
+                errorx=errorx+1
+                start()
+            else:
+                print(str(datetime.now())+"，关闭爬虫")
+                exit()
+        finally:
+            errorx=0
+            print(str(datetime.now())+":错误清0")
+            '''        
+    
+if __name__ == '__main__':
+    cookie = ""
+    wenjianjia='贴吧信息记录'
+    '''
+    # 第一步，创建一个logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)  # Log等级总开关
+    # 第二步，创建一个handler，用于写入日志文件
+    rq = time.strftime('%Y%m%d%H%M', time.localtime(time.time()))
+    if os.path.exists("./"+wenjianjia+"/logs") == False:
+        os.makedirs("./"+wenjianjia+"/logs")  # 创建logs文件夹用来存放日志
+    log_path = "./"+wenjianjia+"/logs"
+    log_name = log_path + rq + '.log'
+    logfile = log_name
+    fh = logging.FileHandler(logfile, mode='w')
+    fh.setLevel(logging.DEBUG)  # 输出到file的log等级的开关
+    # 第三步，定义handler的输出格式
+    formatter = logging.Formatter(
+        "%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+    fh.setFormatter(formatter)
+    # 第四步，将logger添加到handler里面
+    logger.addHandler(fh)
+    '''
+    # 日志
+    #logger.debug('this is a logger debug message')
+    #logger.info('this is a logger info message')
+    #logger.warning('this is a logger warning message')
+    #logger.error('this is a logger error message')
+    #logger.critical('this is a logger critical message')
+    # python中logging日志模块详解
+    # https://www.cnblogs.com/xianyulouie/p/11041777.html
+    try:
+        os.makedirs("./"+wenjianjia)
+    except Exception as err:#FileExistsError or OSError:
+        print(str(err))
     start()
     #timer = threading.Timer(0, start)
     #timer.start()
     '''
-    tieba[0]="邻家的吸血鬼小妹"
-    tieba[1]="邻家索菲"
-    tieba[2]="魔兽地图编辑器"
-    tieba[3]="天使降临到我身边"
-    tieba[4]="天使降临到了我身边"
-    tieba[5]="vtuber"
-    tieba[6]="台风"
-    tieba[7]="东方"
-    tieba[8]="战争雷霆"
-    tieba[9]="舰队collection"
-    tieba[10]="街角魔族"
     temp.append('时间')#-1
     temp.append('贴吧名')#0
     temp.append('贴吧id')#1
