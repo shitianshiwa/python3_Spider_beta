@@ -1,9 +1,23 @@
-测试用的是这个版本
+##测试用的是这个版本
 * https://www.python.org/downloads/release/python-368/
-* python3 -m pip install selenium==2.53.6（最后支持PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新） 
+* python3 -m pip install selenium（==2.53.6是最后不警告PhantomJS浏览器的版本，该浏览器从2018年3月4日开始暂停更新） 
 * https://github.com/SeleniumHQ/selenium
 * python3 -m pip install lxml
-* PhantomJS（https://github.com/ariya/phantomjs） ，放在python根目录的Scripts文件夹里
+* apt-get install firefox
+* 1.下载 geckodriver
+- wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
+* 各个版本的driver下载地址如下(有windows版，可下载放在python根目录里的Scripts文件夹里)
+- https://github.com/mozilla/geckodriver/releases
+* 2.解压
+- tar zxvf geckodriver-v0.22.0-linux64.tar.gz
+* 3.转移
+* 转移的目的是将解压出来的exe程序放到python的安装目录下
+- mv geckodriver /usr/local/bin
+* 4.查看版本
+- geckodriver --version
+* https://blog.csdn.net/qq_34803821/article/details/86653282 linux环境下安装geckodriver
+* //PhantomJS（https://github.com/ariya/phantomjs） ，放在python根目录的Scripts文件夹里
+##以下可省略，因为目前不使用
 # linux上的安装命令
  介绍
  PhantomJS是一种脚本化的无头浏览器，可用于自动执行网页交互。PhantomJS是免费的开放源代码，并根据BSD许可进行分发。PhantomJS基于WebKit，与Safari和    Google Chrome浏览器非常相似。PhantomJS JavaScript API可用于打开网页，执行用户操作和截屏。

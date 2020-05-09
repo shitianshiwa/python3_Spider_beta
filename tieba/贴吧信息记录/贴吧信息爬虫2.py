@@ -1,7 +1,8 @@
 #coding : UTF-8
 '''
-版本0.1330(beta)
-linux系统后台运行 nohup python3 /root/test/贴吧信息爬虫2.py
+版本0.1331(beta)
+cd 贴吧信息记录
+linux系统后台运行 nohup python3 贴吧信息爬虫2.py
 '''
 import os
 import csv
@@ -21,7 +22,9 @@ from urllib import request as r
 from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities#获取浏览器日志 
+# 导入firefox选项
+from selenium.webdriver.firefox.options import Options
+#from selenium.webdriver.common.desired_capabilities import DesiredCapabilities#获取浏览器日志 
 '''
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
  
@@ -131,6 +134,7 @@ Python下Selenium PhantomJs设置header的方法
 https://blog.csdn.net/weixin_33857679/article/details/92267975
 '''
 def getSource():
+    '''
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         'Content-Encoding': 'gzip,deflate,br',
@@ -152,10 +156,91 @@ def getSource():
     #service_args.append('--disk-cache=yes')  ##开启缓存
     service_args.append('--ignore-ssl-errors=true') ##忽略https错误
     '''
+    '''
     版权声明：本文为CSDN博主「老司儿」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
     原文链接：https://blog.csdn.net/ll641058431/java/article/details/79725136
     '''
-    driver = webdriver.PhantomJS(desired_capabilities=cap,service_args=service_args)#注意selenium的版本，高版本才支持chromedriver.exe.这里selenium==2.53.6
+    # 创建firefox浏览器驱动，无头模式（超爽）
+    firefox_options = Options()
+    #firefox_options.set_headless()
+    '''
+    https://peter.sh/experiments/chromium-command-line-switches/
+
+    chrome_options.add_argument('--user-agent=""')  # 设置请求头的User-Agent
+    chrome_options.add_argument('--window-size=1280x1024')  # 设置浏览器分辨率（窗口大小）
+    chrome_options.add_argument('--start-maximized')  # 最大化运行（全屏窗口）,不设置，取元素会报错
+    chrome_options.add_argument('--disable-infobars')  # 禁用浏览器正在被自动化程序控制的提示
+    chrome_options.add_argument('--incognito')  # 隐身模式（无痕模式）
+    chrome_options.add_argument('--hide-scrollbars')  # 隐藏滚动条, 应对一些特殊页面
+    chrome_options.add_argument('--disable-javascript')  # 禁用javascript
+    chrome_options.add_argument('--blink-settings=imagesEnabled=false')  # 不加载图片, 提升速度
+    chrome_options.add_argument('--headless')  # 浏览器不提供可视化页面
+
+    chrome_options.add_argument('--ignore-certificate-errors')  # 禁用扩展插件并实现窗口最大化
+    chrome_options.add_argument('--disable-gpu')  # 禁用GPU加速
+    chrome_options.add_argument('–disable-software-rasterizer')
+    chrome_options.add_argument('--disable-extensions')
+    chrome_options.add_argument('--start-maximized')
+    ————————————————
+    版权声明：本文为CSDN博主「清风冷吟」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+    原文链接：https://blog.csdn.net/weixin_43968923/java/article/details/87899762
+    现象：运行selenium 做网页自动化时，刚开始速度正常，但运行一段时间后速度明显变慢，查看cpu占用情况，发现慢的原因是firefox的cpu占用达100%。估计是缓存问题。解决办法：
+
+    一、定时重启页面：
+
+    webdriver.refresh()                    测试有效
+
+    也有介绍调用：webdriver.delete_all_cookies()            此方法测试无效
+
+    二、通过修改fireprofile优化内存及cpu占用（有效）：
+
+    profile = webdriver.FirefoxProfile()
+
+    profile.set_preference("permissions.default.image", 2)  #禁止下载图片，根据情况使用
+
+    # 禁用浏览器缓存
+
+    profile.set_preference("network.http.use-cache", False)
+
+    profile.set_preference("browser.cache.memory.enable", False)
+
+    profile.set_preference("browser.cache.disk.enable", False)
+
+    profile.set_preference("browser.sessionhistory.max_total_viewers", 3)
+
+    profile.set_preference("network.dns.disableIPv6", True)
+
+    profile.set_preference("Content.notify.interval", 750000)
+
+    profile.set_preference("content.notify.backoffcount", 3)
+
+    # 有的网站支持 有的不支持 2 35 profile.set_preference("network.http.pipelining", True)
+
+    profile.set_preference("network.http.proxy.pipelining", True)
+
+    profile.set_preference("network.http.pipelining.maxrequests", 32)
+
+    三、最有效的办法是第一第二步同步进行，运行一段时间重启页面。
+    ————————————————
+    版权声明：本文为CSDN博主「wenzhp1975」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+    原文链接：https://blog.csdn.net/wenzhp1975/java/article/details/102679081
+    '''
+    firefox_profile = webdriver.FirefoxProfile()
+    firefox_profile.set_preference("permissions.default.image", 2)#禁止下载图片，根据情况使用
+    # 禁用浏览器缓存
+    firefox_profile.set_preference("network.http.use-cache", False)
+    firefox_profile.set_preference("browser.cache.memory.enable", False)
+    firefox_profile.set_preference("browser.cache.disk.enable", False)
+    firefox_profile.set_preference("browser.sessionhistory.max_total_viewers", 3)
+    firefox_profile.set_preference("network.dns.disableIPv6", True)
+    firefox_profile.set_preference("Content.notify.interval", 750000)
+    firefox_profile.set_preference("content.notify.backoffcount", 3)
+    firefox_options.add_argument("--headless")
+    firefox_options.add_argument("--blink-settings=imagesEnabled=false")
+    firefox_options.add_argument('--start-maximized')
+    firefox_options.add_argument('--incognito') 
+    driver = webdriver.Firefox(options=firefox_options,firefox_profile=firefox_profile)#executable_path=r'geckodriver.exe路径'
+    #driver = webdriver.PhantomJS(desired_capabilities=cap,service_args=service_args)#注意selenium的版本，高版本才支持chromedriver.exe.这里selenium==2.53.6
     driver.set_page_load_timeout(60)  # 设置页面最长加载时间为5s
     driver.set_script_timeout(60)     #这两种设置都进行才有效
     '''
@@ -227,11 +312,11 @@ def get_data(name,browser):
         return False
     #browser.close()#不能用
     #备份当时获取到的内容，以备以后需要时查看
-    with open( './'+wenjianjia+'/'+'百度贴吧'+name+'吧.html', 'w', encoding='utf-8') as f:
+    with open( '../'+wenjianjia+'/'+'百度贴吧'+name+'吧.html', 'w', encoding='utf-8') as f:
         f.write(str(html_tree1))
-    with open( './'+wenjianjia+'/'+'百度贴吧'+name+'吧.json', 'w', encoding='utf-8') as f:
+    with open( '../'+wenjianjia+'/'+'百度贴吧'+name+'吧.json', 'w', encoding='utf-8') as f:
         f.write(str(html_tree2))
-    with open( './'+wenjianjia+'/'+'百度贴吧'+name+'精品区.html', 'w', encoding='utf-8') as f:
+    with open( '../'+wenjianjia+'/'+'百度贴吧'+name+'精品区.html', 'w', encoding='utf-8') as f:
         f.write(str(html_tree3))
         
     #print(html_tree1)
@@ -357,7 +442,7 @@ def get_data(name,browser):
     print(str(temp))
     final.append(temp)
         
-    write_data(final, './'+wenjianjia+'/'+'百度贴吧'+name+'吧.csv')
+    write_data(final, '../'+wenjianjia+'/'+'百度贴吧'+name+'吧.csv')
     return True
 
 def write_data(data, name):
@@ -369,7 +454,7 @@ def write_data(data, name):
 def usejson():
     # 读取JSON配置文件
     #global weiwancheng
-    filename = "./tieba.json"
+    filename = "../"+wenjianjia+"/tieba.json"
     jsontemp = None
     f_obj = None
     temp=[]
@@ -426,7 +511,7 @@ def start():
     final.append(temp)
     count = 0
     while count < len(tieba[0]):
-        temp2='./'+wenjianjia+'/'+'百度贴吧'+tieba[0][count]+'吧.csv'
+        temp2='../'+wenjianjia+'/'+'百度贴吧'+tieba[0][count]+'吧.csv'
         if os.path.exists(temp2)==False:
             with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
                 f_csv = csv.writer(f)
@@ -450,31 +535,42 @@ def start():
     weiwancheng=True
     '''
     while countx < len(tieba[0]):
-        if chongshi>5:
-            print("连续重试超过2次，关闭爬虫！")
-            exit()
         if(browser==None):
             browser = getSource()
         else:
-            browser.service.process.send_signal(signal.SIGTERM)
+            #browser.service.process.send_signal(signal.SIGTERM)
+            browser.close()
             browser.quit()
+            os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
+            os.system('taskkill /im firefox.exe /F')
             browser=None
-            with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
+            with open('../'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
                 f.write("\n"+str(countx)+".浏览器卡住了\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
             print(datetime.now())
             exit()
+        if chongshi>5:
+            print("连续重试超过2次，关闭爬虫！")
+            exit()
+        
         if get_data(tieba[0][countx],browser)==True:
+            browser.save_screenshot("temp.png")
             countx = countx + 1
             chongshi=0
         else:
             print("重试"+str(chongshi+1)+"次")
             chongshi=chongshi+1
         browser.close()
-        browser.service.process.send_signal(signal.SIGTERM)
+        #browser.service.process.send_signal(signal.SIGTERM)
         browser.quit()
+        os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
+        os.system('taskkill /im firefox.exe /F')
         browser=None
+        #browser.refresh()
         time.sleep(random.choice(range(8,10)))#延迟
     countx = 0
+    os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
+    os.system('taskkill /im firefox.exe /F')
+    browser=None
     #weiwancheng=False
     print(str(datetime.now())+",end")
     print("延迟："+str(timeout)+"s后，再次爬取")
@@ -491,7 +587,7 @@ def start():
                 browser.quit()
                 browser=None
             #print(str(err))
-            with open('./'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
+            with open('../'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
                 f.write("\n"+str(countx)+'.'+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
             time.sleep(random.choice(range(60,180)))#延迟
             if(errorx<3):
@@ -514,9 +610,9 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)  # Log等级总开关
     # 第二步，创建一个handler，用于写入日志文件
     rq = time.strftime('%Y%m%d%H%M', time.localtime(time.time()))
-    if os.path.exists("./"+wenjianjia+"/logs") == False:
-        os.makedirs("./"+wenjianjia+"/logs")  # 创建logs文件夹用来存放日志
-    log_path = "./"+wenjianjia+"/logs"
+    if os.path.exists("../"+wenjianjia+"/logs") == False:
+        os.makedirs("../"+wenjianjia+"/logs")  # 创建logs文件夹用来存放日志
+    log_path = "../"+wenjianjia+"/logs"
     log_name = log_path + rq + '.log'
     logfile = log_name
     fh = logging.FileHandler(logfile, mode='w')
@@ -537,7 +633,7 @@ if __name__ == '__main__':
     # python中logging日志模块详解
     # https://www.cnblogs.com/xianyulouie/p/11041777.html
     try:
-        os.makedirs("./"+wenjianjia)
+        os.makedirs("../"+wenjianjia)
     except Exception as err:#FileExistsError or OSError:
         print(str(err))
     start()
