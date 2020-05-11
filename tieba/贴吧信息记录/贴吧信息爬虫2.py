@@ -1,8 +1,14 @@
 #coding : UTF-8
 '''
-版本0.1331(beta)
+版本0.1332(beta)
 cd 贴吧信息记录
 linux系统后台运行 nohup python3 贴吧信息爬虫2.py
+ps aux|grep firefox|grep -v grep
+ps aux|grep  geckodriver|grep -v grep
+ps aux|grep python|grep -v grep
+ps -ef | grep firefox | grep -v grep | cut -c 9-15 | xargs kill -s 9
+https://www.cnblogs.com/fatt/p/5050866.html
+linux下杀死进程（kill）的N种方法
 '''
 import os
 import csv
@@ -12,18 +18,18 @@ import json
 import signal
 import time
 import threading
+import zlib
 #import logging  # 引入logging模块
 #import lxml
-import zlib
 #import hashlib
 import socket
 from socket import error as SocketError
 from urllib import request as r
 from datetime import datetime
 from bs4 import BeautifulSoup
-from selenium import webdriver
+#from selenium import webdriver
 # 导入firefox选项
-from selenium.webdriver.firefox.options import Options
+#from selenium.webdriver.firefox.options import Options
 #from selenium.webdriver.common.desired_capabilities import DesiredCapabilities#获取浏览器日志 
 '''
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -42,8 +48,8 @@ driver.quit()
 使用selenium.webdriver.common.desired_capabilities获取浏览器日志 - miss_林 - 博客园
 https://www.cnblogs.com/misslin/p/10234915.html
 '''
-from selenium.webdriver.support.wait import WebDriverWait#显示等待:WebDriverWait() WebDriverWait(driver,timeout,poll_frequency=0.5,ignored_exceptions=None)
-from selenium.webdriver.common.by import By#从selenium.webdriver.common.by 导入By包进行元素定位
+#from selenium.webdriver.support.wait import WebDriverWait#显示等待:WebDriverWait() WebDriverWait(driver,timeout,poll_frequency=0.5,ignored_exceptions=None)
+#from selenium.webdriver.common.by import By#从selenium.webdriver.common.by 导入By包进行元素定位
 '''
 By是selenium中内置的一个class，在这个class中有各种方法来定位元素
 
@@ -73,7 +79,7 @@ XPATH = 'xpath'
 版权声明：本文为CSDN博主「白清羽」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
 原文链接：https://blog.csdn.net/gufenchen/java/article/details/98056959
 '''
-from selenium.webdriver.support import expected_conditions as EC#判断一个元素是否存在，如何判断alert弹窗出来了，如何判断动态的元素等等一系列的判断，在selenium的expected_conditions模块收集了一系列的场景判断方法，
+#from selenium.webdriver.support import expected_conditions as EC#判断一个元素是否存在，如何判断alert弹窗出来了，如何判断动态的元素等等一系列的判断，在selenium的expected_conditions模块收集了一系列的场景判断方法，
 '''
 selenium之等待页面（或者特定元素）加载完成_Python_weixin_42081389的博客-CSDN博客
 https://blog.csdn.net/weixin_42081389/article/details/98486562
@@ -95,29 +101,44 @@ selenium.webdriver.support.ui 和selenium.webdriver.support.wait的区别
 #检测超时需要的模块
 #PhantomJS   都能用
 #Firefox  都能用
-import selenium.common.exceptions
-socket.setdefaulttimeout(random.choice(range(80, 180)))# 这里对整个socket层设置超时时间。后续文件中如果再使用到socket，不必再设置
+#import selenium.common.exceptions
 
+socket.setdefaulttimeout(random.choice(range(60, 120)))# 这里对整个socket层设置超时时间。后续文件中如果再使用到socket，不必再设置
 wenjianjia=''
 tieba=None
 timer=None
 countx = 0
 errorx=0
-browser=None
+#browser=None
 #weiwancheng=False
 
 def req_maker(path):
     if path:
         req = r.Request(path)
-        req.add_header("User-Agent","Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36")
-        req.add_header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-        req.add_header("Accept-Encoding", "gzip, deflate")
+        req.add_header(
+            "User-Agent", "Mozilla/5.0 (X11; U; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.124 Safari/537.36")
+        req.add_header(
+            "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+        req.add_header("Accept-Encoding", "gzip, deflate, br")
         req.add_header("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6")
         req.add_header("Cookie", cookie)
         return req
     else:
         return None
 
+def req_maker2(path):
+    if path:
+        req = r.Request(path)
+        req.add_header(
+            "User-Agent", "Mozilla/5.0 (X11; U; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.124 Safari/537.36")
+        req.add_header(
+            "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+        req.add_header("Accept-Encoding", "gzip, deflate")
+        req.add_header("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6")
+        req.add_header("Cookie", cookie)
+        return req
+    else:
+        return None
 
 def get_response_str(req):
     with r.urlopen(req) as f:
@@ -161,7 +182,7 @@ def getSource():
     原文链接：https://blog.csdn.net/ll641058431/java/article/details/79725136
     '''
     # 创建firefox浏览器驱动，无头模式（超爽）
-    firefox_options = Options()
+    #firefox_options = Options()
     #firefox_options.set_headless()
     '''
     https://peter.sh/experiments/chromium-command-line-switches/
@@ -225,31 +246,31 @@ def getSource():
     版权声明：本文为CSDN博主「wenzhp1975」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
     原文链接：https://blog.csdn.net/wenzhp1975/java/article/details/102679081
     '''
-    firefox_profile = webdriver.FirefoxProfile()
-    firefox_profile.set_preference("permissions.default.image", 2)#禁止下载图片，根据情况使用
+    #firefox_profile = webdriver.FirefoxProfile()
+    #firefox_profile.set_preference("permissions.default.image", 2)#禁止下载图片，根据情况使用
     # 禁用浏览器缓存
-    firefox_profile.set_preference("network.http.use-cache", False)
-    firefox_profile.set_preference("browser.cache.memory.enable", False)
-    firefox_profile.set_preference("browser.cache.disk.enable", False)
-    firefox_profile.set_preference("browser.sessionhistory.max_total_viewers", 3)
-    firefox_profile.set_preference("network.dns.disableIPv6", True)
-    firefox_profile.set_preference("Content.notify.interval", 750000)
-    firefox_profile.set_preference("content.notify.backoffcount", 3)
-    firefox_options.add_argument("--headless")
-    firefox_options.add_argument("--blink-settings=imagesEnabled=false")
-    firefox_options.add_argument('--start-maximized')
-    firefox_options.add_argument('--incognito') 
-    driver = webdriver.Firefox(options=firefox_options,firefox_profile=firefox_profile)#executable_path=r'geckodriver.exe路径'
+    #firefox_profile.set_preference("network.http.use-cache", False)
+    #firefox_profile.set_preference("browser.cache.memory.enable", False)
+    #firefox_profile.set_preference("browser.cache.disk.enable", False)
+    #firefox_profile.set_preference("browser.sessionhistory.max_total_viewers", 3)
+    #firefox_profile.set_preference("network.dns.disableIPv6", True)
+    #firefox_profile.set_preference("Content.notify.interval", 750000)
+    #firefox_profile.set_preference("content.notify.backoffcount", 3)
+    #firefox_options.add_argument("--headless")
+    #firefox_options.add_argument("--blink-settings=imagesEnabled=false")
+    #firefox_options.add_argument('--start-maximized')
+    #firefox_options.add_argument('--incognito') 
+    #driver = webdriver.Firefox(options=firefox_options,firefox_profile=firefox_profile)#executable_path=r'geckodriver.exe路径'
     #driver = webdriver.PhantomJS(desired_capabilities=cap,service_args=service_args)#注意selenium的版本，高版本才支持chromedriver.exe.这里selenium==2.53.6
-    driver.set_page_load_timeout(60)  # 设置页面最长加载时间为5s
-    driver.set_script_timeout(60)     #这两种设置都进行才有效
+    #driver.set_page_load_timeout(60)  # 设置页面最长加载时间为5s
+    #driver.set_script_timeout(60)     #这两种设置都进行才有效
     '''
     selenium 超时问题解决
     http://blog.leanote.com/post/boom/selenium-%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3
     '''
-    return driver
+    #return driver
 
-def get_data(name,browser):
+def get_data(name):
     global wenjianjia
     final = []
     str2=name.encode('utf-8')
@@ -262,13 +283,22 @@ def get_data(name,browser):
     html_str2='http://tieba.baidu.com/sign/info?kw='+str2+'&ie=utf-8'#贴吧信息api
     html_str3='https://tieba.baidu.com/f?kw='+str2+'&ie=utf-8&tab=good'#贴吧精品区网页
     try:
+        html_tree11 = get_response_str(req_maker(html_str1))
+        html_tree1=BeautifulSoup(str(html_tree11), 'html.parser')
+        print(html_str1)
+        html_tree22 = get_response_str(req_maker2(html_str2))
+        html_tree2=BeautifulSoup(str(html_tree22), 'html.parser')
+        print(html_str2)
+        html_tree33 = get_response_str(req_maker(html_str3))
+        html_tree3=BeautifulSoup(str(html_tree33), 'html.parser')
+        print(html_str3)
         '''
         html_str1 = get_response_str(req_maker('https://tieba.baidu.com/f?kw='+str2))
         html_tree1=BeautifulSoup(html_str1, 'html.parser')
         '''
-        browser.get(html_str1)
+        #browser.get(html_str1)
         #time.sleep(2)#有时候会没加载完内容，所以弄个2秒延时 
-        element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
+        #element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
         # 此处注意，如果省略message=“”，则By.ID外面是两层()
         '''
         方法	说明
@@ -292,23 +322,24 @@ def get_data(name,browser):
         版权声明：本文为CSDN博主「腰椎间盘没你突出」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
         原文链接：https://blog.csdn.net/sinat_41774836/java/article/details/88965281
         '''
-        html_tree1 = BeautifulSoup(str(browser.page_source), 'html.parser')#lxml据说能提高处理网页的效率，所以换换看(2019-11-16再换回来看看)
+        #html_tree1 = BeautifulSoup(str(browser.page_source), 'html.parser')#lxml据说能提高处理网页的效率，所以换换看(2019-11-16再换回来看看)
+        
         #browser.get(html_str2)
         #time.sleep(2)#有时候会没加载完内容，所以弄个2秒延时
         #element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
-        html_str22 = get_response_str(req_maker(html_str2))
-        html_tree2=BeautifulSoup(str(html_str22), 'html.parser')
         #html_tree2 = BeautifulSoup(str(browser.page_source), 'html.parser')
-        
-        browser.get(html_str3)
+        #browser.get(html_str3)
         #time.sleep(2)#有时候会没加载完内容，所以弄个2秒延时        
-        element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
-        html_tree3 = BeautifulSoup(str(browser.page_source), 'html.parser')
-    except selenium.common.exceptions.TimeoutException as err:
-        print("捕捉到请求超时错误"+str(err))
-        return False
+        #element =WebDriverWait(browser,80,0.5).until(EC.presence_of_element_located((By.TAG_NAME,'body')),message="")
+        #html_tree3 = BeautifulSoup(str(browser.page_source), 'html.parser')
+    #except selenium.common.exceptions.TimeoutException as err:
+    #    print("捕捉到请求超时错误"+str(err))
+    #    return False
     except SocketError as e:
         print("SocketError"+str(datetime.now())+str(e))
+        return False
+    except Exception as err:
+        print(err)
         return False
     #browser.close()#不能用
     #备份当时获取到的内容，以备以后需要时查看
@@ -493,7 +524,7 @@ def start():
     global wenjianjia
     global countx
     global errorx
-    global browser
+    #global browser
     global timer
     final=[]
     temp=[]
@@ -535,42 +566,42 @@ def start():
     weiwancheng=True
     '''
     while countx < len(tieba[0]):
-        if(browser==None):
-            browser = getSource()
-        else:
-            #browser.service.process.send_signal(signal.SIGTERM)
-            browser.close()
-            browser.quit()
-            os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
-            os.system('taskkill /im firefox.exe /F')
-            browser=None
-            with open('../'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
-                f.write("\n"+str(countx)+".浏览器卡住了\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
-            print(datetime.now())
-            exit()
+        #if(browser==None):
+        #  browser = getSource()
+        #else:
+        #  browser.service.process.send_signal(signal.SIGTERM)
+        #  browser.close()
+        #  browser.quit()
+        #  os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
+        #  os.system('taskkill /im firefox.exe /F')
+        #  browser=None
+        #  with open('../'+wenjianjia+'/'+'tieba_log.txt', 'a', encoding='utf-8') as f:
+        #        f.write("\n"+str(countx)+".浏览器卡住了\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+        #  print(datetime.now())
+        #  exit()
         if chongshi>5:
             print("连续重试超过2次，关闭爬虫！")
             exit()
         
-        if get_data(tieba[0][countx],browser)==True:
-            browser.save_screenshot("temp.png")
+        if get_data(tieba[0][countx])==True:
+            #browser.save_screenshot("temp.png")
             countx = countx + 1
             chongshi=0
         else:
             print("重试"+str(chongshi+1)+"次")
             chongshi=chongshi+1
-        browser.close()
+        #browser.close()
         #browser.service.process.send_signal(signal.SIGTERM)
-        browser.quit()
-        os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
-        os.system('taskkill /im firefox.exe /F')
-        browser=None
+        #browser.quit()
+        #os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
+        #os.system('taskkill /im firefox.exe /F')
+        #browser=None
         #browser.refresh()
         time.sleep(random.choice(range(8,10)))#延迟
     countx = 0
-    os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
-    os.system('taskkill /im firefox.exe /F')
-    browser=None
+    #os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
+    #os.system('taskkill /im firefox.exe /F')
+    #browser=None
     #weiwancheng=False
     print(str(datetime.now())+",end")
     print("延迟："+str(timeout)+"s后，再次爬取")
