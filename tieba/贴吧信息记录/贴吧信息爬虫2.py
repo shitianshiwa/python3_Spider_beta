@@ -142,6 +142,7 @@ def req_maker2(path):
 
 def get_response_str(req):
     with r.urlopen(req) as f:
+        time.sleep(1)
         decompressed_data =zlib.decompress(f.read(), 16 + zlib.MAX_WBITS)
     return str(decompressed_data, "utf-8", errors='replace')
         
