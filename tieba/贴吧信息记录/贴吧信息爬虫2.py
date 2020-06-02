@@ -1,6 +1,6 @@
 #coding : UTF-8
 '''
-版本0.1332(beta)
+版本0.1334(beta)
 cd 贴吧信息记录
 linux系统后台运行 nohup python3 贴吧信息爬虫2.py
 ps aux|grep firefox|grep -v grep
@@ -141,7 +141,7 @@ def req_maker2(path):
         return None
 
 def get_response_str(req):
-    with r.urlopen(req) as f:
+    with r.urlopen(req,timeout=60) as f:
         time.sleep(1)
         decompressed_data =zlib.decompress(f.read(), 16 + zlib.MAX_WBITS)
     return str(decompressed_data, "utf-8", errors='replace')
@@ -367,13 +367,15 @@ def get_data(name):
     #print(html_tree2)
     #body=str(body).split("<body>")[1].split("</body>")[0]
     #print(body)
-    data2 = json.loads(str(html_tree2))
-    data3 = str(data2).replace("'",'"')
-    data3 = str(data3).replace("True",'true')
-    data3 = str(data3).replace("False",'false')#解决处理转换成json后，保存文件后json格式出错
+    data2=None
+    data3=None
     #print(data3)
     #网页
     try:
+        data2 = json.loads(str(html_tree2))
+        data3 = str(data2).replace("'",'"')
+        data3 = str(data3).replace("True",'true')
+        data3 = str(data3).replace("False",'false')#解决处理转换成json后，保存文件后json格式出错
         body=str(html_tree1).split('<div class="th_footer_l">')[1].split('</div>')[0]#主题贴数，贴子总数，关注人数，
     except Exception as err:
         print(err)
