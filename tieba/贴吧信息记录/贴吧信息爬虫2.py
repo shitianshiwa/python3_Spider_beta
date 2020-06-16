@@ -1,6 +1,6 @@
 #coding : UTF-8
 '''
-版本0.1334(beta)
+版本0.1335(beta)
 cd 贴吧信息记录
 linux系统后台运行 nohup python3 贴吧信息爬虫2.py
 ps aux|grep firefox|grep -v grep
@@ -142,7 +142,7 @@ def req_maker2(path):
 
 def get_response_str(req):
     with r.urlopen(req,timeout=60) as f:
-        time.sleep(1)
+        time.sleep(2)
         decompressed_data =zlib.decompress(f.read(), 16 + zlib.MAX_WBITS)
     return str(decompressed_data, "utf-8", errors='replace')
         
@@ -583,7 +583,7 @@ def start():
         #  print(datetime.now())
         #  exit()
         if chongshi>5:
-            print("连续重试超过2次，关闭爬虫！")
+            print("连续重试超过6次，关闭爬虫！")
             exit()
         
         if get_data(tieba[0][countx])==True:
