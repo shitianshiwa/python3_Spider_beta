@@ -1,6 +1,6 @@
 #coding : UTF-8
 '''
-版本0.1335(beta)
+版本0.1336(beta)
 cd 贴吧信息记录
 linux系统后台运行 nohup python3 贴吧信息爬虫2.py
 ps aux|grep firefox|grep -v grep
@@ -340,7 +340,7 @@ def get_data(name):
         print("SocketError"+str(datetime.now())+str(e))
         return False
     except Exception as err:
-        print(err)
+        print("网络错误："+str(err))
         return False
     #browser.close()#不能用
     #备份当时获取到的内容，以备以后需要时查看
@@ -378,7 +378,7 @@ def get_data(name):
         data3 = str(data3).replace("False",'false')#解决处理转换成json后，保存文件后json格式出错
         body=str(html_tree1).split('<div class="th_footer_l">')[1].split('</div>')[0]#主题贴数，贴子总数，关注人数，
     except Exception as err:
-        print(err)
+        print("网页:"+str(err))
         return False
     html_tree4 = BeautifulSoup(body, 'html.parser')
     #----------------------------
@@ -428,13 +428,33 @@ def get_data(name):
     data4[5]=data2['data']['forum_info']['current_rank_info']['member_count']   #当日关注人数（api端）
     try:
         data4[4]=html_tree4.find_all('span')[2].string                              #当日关注人数(网页端)
+    except Exception as err:
+        print("当日关注人数(网页端):"+str(err))
+        data4[4]=0
+    
+    try:
         data4[6]=html_tree4.find_all('span')[0].string                              #当日主题贴数(网页端)
+    except Exception as err:
+        print("当日主题贴数(网页端):"+str(err))
+        data4[6]=0
+    
+    try:
         data4[7]=html_tree4.find_all('span')[1].string                              #当日贴子总数(网页端)
-        data4[8]=str(html_tree3).split('<div class="th_footer_l">')[1].split('</div>')[0].split('<span class="red_text">')[1].split('</span>')[0]#精品贴总数
+    except Exception as err:
+        print("当日贴子总数(网页端):"+str(err))
+        data4[7]=0
+    
+    try:
         data4[9]=html_tree4.find_all('a')[0].string                                 #会员名字(网页端)
     except Exception as err:
-        print(err)
-        return False
+        print("会员名字(网页端):"+str(err))
+        data4[9]=0
+    
+    try:
+        data4[8]=str(html_tree3).split('<div class="th_footer_l">')[1].split('</div>')[0].split('<span class="red_text">')[1].split('</span>')[0]#精品贴总数
+    except Exception as err:
+        data4[8]=0
+        print("精品贴总数:"+str(err))
     #当日
     data4[10]=data2['data']['forum_info']['current_rank_info']['sign_count']     #当日签到人数
     try:
@@ -481,7 +501,7 @@ def get_data(name):
 
 def write_data(data, name):
     file_name = name
-    with open(file_name, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容 写文件
+    with open(file_name, 'a', errors='ignore', newline='' ,encoding="utf-8") as f:#  'a'  模式，追加内容 写文件
             f_csv = csv.writer(f)
             f_csv.writerows(data)
 
@@ -547,7 +567,7 @@ def start():
     while count < len(tieba[0]):
         temp2='../'+wenjianjia+'/'+'百度贴吧'+tieba[0][count]+'吧.csv'
         if os.path.exists(temp2)==False:
-            with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+            with open(temp2, 'a', errors='ignore', newline='',encoding="utf-8") as f:#  'a'  模式，追加内容
                 f_csv = csv.writer(f)
                 f_csv.writerows(final)
         count = count + 1
@@ -669,7 +689,7 @@ if __name__ == '__main__':
     try:
         os.makedirs("../"+wenjianjia)
     except Exception as err:#FileExistsError or OSError:
-        print(str(err))
+        print("创建文件夹："+str(err))
     start()
     #timer = threading.Timer(0, start)
     #timer.start()
