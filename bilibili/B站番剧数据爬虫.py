@@ -1,5 +1,5 @@
 #-*-coding:utf-8 -*-
-#(beta)0.2222
+#(beta)0.2224
 import os
 import threading
 import requests
@@ -14,7 +14,7 @@ import urllib.request
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-wenjianjia=''
+#wenjianjia=''
 logname='bilibili_log.txt'
 A=['https://api.bilibili.com/pgc/view/web/media?media_id=139632',
    'https://api.bilibili.com/pgc/view/web/media?media_id=28221404',
@@ -27,7 +27,6 @@ C=['B站邻家索菲数据','B站街角魔族数据','天使降临到我身边',
 #C2=['B站邻家索菲数据2.csv','B站街角魔族数据2.csv','天使降临到我身边2.csv','恋爱小行星2.csv']
 timer=None
 
-# https://blog.csdn.net/Bo_wen_/article/details/50868339 python 网络爬虫入门（一）———第一个python爬虫实例
 def get_content(url , data = None):
     header={
         'Accept': 'application/json, text/plain, */*',
@@ -72,11 +71,11 @@ def get_content(url , data = None):
     #return html_text
     
 def get_data(html_text,name):
-    global wenjianjia
+    #global wenjianjia
     try:
         final = []
         bs = BeautifulSoup(html_text, "html.parser")  # 创建BeautifulSoup对象 html.parser
-        with open('./'+wenjianjia+'/'+'bilibili_fanju_log.html', 'w', encoding='utf-8') as f:
+        with open('./bilibili_fanju_log.html', 'w', encoding='utf-8') as f:
              f.write(str(bs))
         '''
         #https://www.runoob.com/python3/python3-json.html
@@ -109,7 +108,7 @@ def get_data(html_text,name):
     
     except Exception as err:
         #timer.cancel()
-        with open('./'+wenjianjia+'/'+logname, 'a', encoding='utf-8') as f:
+        with open('./'+logname, 'a', encoding='utf-8') as f:
             f.write("\n"+str(err)+"\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
         exit()
@@ -123,17 +122,17 @@ def write_data(data, name):
             
 def start():
     global timer
-    global wenjianjia
+    #global wenjianjia
     #if timer!=None:
         #timer.cancel()
     #print("2233")
-    timeout=3600+random.choice(range(1, 10))
+    timeout=360+random.choice(range(1, 10))
     print("延迟："+str(timeout)+"s")
     i=0
     while(i<len(C)):
         html = get_content(A[i])
         result = get_data(html,C[i])
-        write_data(result,'./'+wenjianjia+'/'+C[i]+'.csv')
+        write_data(result,'./'+C[i]+'.csv')
         i=i+1
         time.sleep(2)
 
@@ -149,11 +148,11 @@ def start():
          #f.write(str(result))
 
 if __name__ == '__main__':
-    wenjianjia='B站番剧数据爬虫'
-    try:
-        os.makedirs(wenjianjia)
-    except Exception as err:
-        print(str(err))
+    #wenjianjia='B站番剧数据爬虫'
+    #try:
+    #    os.makedirs(wenjianjia)
+    #except Exception as err:
+    #    print(str(err))
     final=[]
     temp=[]
     Temp =['时间','播放数','关注','弹幕','评分','评分人数']#共6个
@@ -164,7 +163,7 @@ if __name__ == '__main__':
     final.append(temp)
     i=0
     while(i<len(C)):
-        temp2='./'+wenjianjia+'/'+C[i]+'.csv'
+        temp2='./'+C[i]+'.csv'
         if os.path.exists(temp2)==False:
              with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
                 f_csv = csv.writer(f)
@@ -173,7 +172,7 @@ if __name__ == '__main__':
     '''
     i=0
     while(i<len(C2)):
-        with open('./'+wenjianjia+'/'+C2[i], 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
+        with open('./'+C2[i], 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
             f_csv = csv.writer(f)
             f_csv.writerows(final)
         i=i+1

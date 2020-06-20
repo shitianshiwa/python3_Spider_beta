@@ -1,6 +1,6 @@
 # -*-coding:utf-8 -*-
 '''
-(beta)0.743
+(beta)0.744
 后台运行 nohup python3 /root/test/up主数据爬虫.py &
 显示所有进程 ps aux
 杀死进程 PID（数字）
@@ -27,7 +27,7 @@ from bs4 import BeautifulSoup
 
 browser = None
 timer = None
-wenjianjia=''
+#wenjianjia=''
 dizhi = ['https://api.bilibili.com/x/relation/stat?vmid=349991143',
          'https://api.bilibili.com/x/relation/stat?vmid=375504219',
          'https://api.bilibili.com/x/relation/stat?vmid=1473830',
@@ -88,13 +88,13 @@ def getSource(url):
 
 def get_data(url, logname, timeoutx):
     global browser
-    global wenjianjia
+    #global wenjianjia
     #global timer
     #global url
     try:
         browser = getSource(url)
         bs = BeautifulSoup(browser, 'html.parser')
-        with open('./'+wenjianjia+'/'+'bilibili_up_error.html', 'w', encoding='utf-8') as f:
+        with open('./bilibili_up_error.html', 'w', encoding='utf-8') as f:
             f.write(str(bs))
         # print(bs)
         data = bs.string.split(":")  # 字符串切割获得字符串数组
@@ -106,8 +106,8 @@ def get_data(url, logname, timeoutx):
         temp.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         temp.append(valuex)
         final.append(temp)
-        write_data(final, './'+wenjianjia+'/'+logname+'.csv')
-        with open('./'+wenjianjia+'/'+logname+'_log.txt', 'a', encoding='utf-8') as f:
+        write_data(final, './'+logname+'.csv')
+        with open('./'+logname+'_log.txt', 'a', encoding='utf-8') as f:
             f.write("\n"+"粉丝数："+valuex+",延迟："+str(timeoutx)+"s"+"\n" +
                     time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         #timer = threading.Timer(timeoutx, get_data(url,logname))
@@ -115,7 +115,7 @@ def get_data(url, logname, timeoutx):
 
     except Exception as err:
         # timer.cancel()
-        with open('./'+wenjianjia+'/'+logname+'_error.txt', 'a', encoding='utf-8') as f:
+        with open('./'+logname+'_error.txt', 'a', encoding='utf-8') as f:
             f.write("\n"+str(err)+"\n" +
                     time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         print(datetime.now())
@@ -135,7 +135,7 @@ def init():
     global timer
     global dizhi
     global mingzi
-    global wenjianjia
+    #global wenjianjia
     # timer.cancel()
     # print("2233")
     timeoutx = 180+random.choice(range(1, 10))
@@ -155,11 +155,11 @@ def init():
 
 
 if __name__ == '__main__':
-    wenjianjia='up主数据爬虫'
-    try:
-        os.makedirs(wenjianjia)
-    except Exception as err:  # FileExistsError or OSError:
-        print(str(err))
+    #wenjianjia='up主数据爬虫'
+    #try:
+    #    os.makedirs(wenjianjia)
+    #except Exception as err:  # FileExistsError or OSError:
+    #    print(str(err))
     final = []
     temp = []
     temp.append('时间')
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     final.append(temp)
     i=0
     while(i < len(mingzi)):
-        temp2='./'+wenjianjia+'/'+mingzi[i]+'.csv'
+        temp2='./'+mingzi[i]+'.csv'
         if os.path.exists(temp2)==False:
             with open(temp2, 'a', errors='ignore', newline='') as f:#  'a'  模式，追加内容
                 f_csv = csv.writer(f)
