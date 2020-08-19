@@ -620,7 +620,7 @@ def start():
         #os.system('taskkill /im firefox.exe /F')
         #browser=None
         #browser.refresh()
-        time.sleep(random.choice(range(8,10)))#延迟
+        time.sleep(random.choice(range(30,60)))#延迟
     countx = 0
     #os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
     #os.system('taskkill /im firefox.exe /F')
