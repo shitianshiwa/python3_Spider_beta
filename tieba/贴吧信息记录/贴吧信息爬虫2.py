@@ -116,10 +116,10 @@ def req_maker(path):
     if path:
         req = r.Request(path)
         req.add_header(
-            "User-Agent", "Mozilla/5.0 (X11; U; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.124 Safari/537.36")
+            "User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36")
         req.add_header(
-            "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-        req.add_header("Accept-Encoding", "gzip, deflate, br")
+            "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+        req.add_header("Accept-Encoding", "gzip")
         req.add_header("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6")
         req.add_header("Cookie", cookie)
         return req
@@ -130,9 +130,9 @@ def req_maker2(path):
     if path:
         req = r.Request(path)
         req.add_header(
-            "User-Agent", "Mozilla/5.0 (X11; U; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.124 Safari/537.36")
+            "User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36")
         req.add_header(
-            "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+            "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
         req.add_header("Accept-Encoding", "gzip, deflate")
         req.add_header("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6")
         req.add_header("Cookie", cookie)
