@@ -572,7 +572,7 @@ def start():
                 f_csv.writerows(final)
         count = count + 1
 
-    timeout=tieba[1]+random.choice(range(30,60))
+    timeout=tieba[1]+random.choice(range(60,180))
     chongshi=0
     '''
     #没有以下的情况存在，一定是执行完本次，才开启下一次轮回
@@ -602,8 +602,8 @@ def start():
         #        f.write("\n"+str(countx)+".浏览器卡住了\n"+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
         #  print(datetime.now())
         #  exit()
-        if chongshi>5:
-            print("连续重试超过6次，关闭爬虫！")
+        if chongshi>3:
+            print("连续重试超过4次，关闭爬虫！")
             exit()
         
         if get_data(tieba[0][countx])==True:
@@ -620,7 +620,7 @@ def start():
         #os.system('taskkill /im firefox.exe /F')
         #browser=None
         #browser.refresh()
-        time.sleep(random.choice(range(30,60)))#延迟
+        time.sleep(random.choice(range(60,180)))#延迟
     countx = 0
     #os.system('taskkill /im geckodriver.exe /F')#查找清除残余进程
     #os.system('taskkill /im firefox.exe /F')
